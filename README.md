@@ -24,14 +24,13 @@ Prints which operation needs to exist in hardware for maximum performance
 
 # How to use
 Just copy and paste the .hpp file you would like to use in your own chess engine. Now you are done. No initialisation etc. needed (happens during compiletime)
-
+```
 namespace Lookup = Chess_Lookup::Lookup_Hyper;
-
 Lookup::Prepare(occ);
-
 uint64_t attacks = Lookup::Queen(sq);
-
+```
 # Example Result:
+```
 AMD Ryzen 9 5950X 16-Core Processor
 Megalooks Simulated Game/s:
 Exploading:     134.83MOps      6 kB    Optimal perf: imul64
@@ -47,6 +46,6 @@ Hash Plain:     639.94MOps      2306 kB Optimal perf: imul64
 Hash Fancy:     804.33MOps      694 kB  Optimal perf: imul64
 Pext  :         895.62MOps      843 kB  Optimal perf: pext_u64
 HyperCube:      271.05MOps      841 kB  Optimal perf: incremental, none
-
+```
 
 
