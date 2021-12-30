@@ -11,6 +11,55 @@
 #include <string_view>
 #include <type_traits>
 
+#ifndef CPUID_H
+#define CPUID_H
+
+#ifdef _WIN32
+#include <limits.h>
+#include <intrin.h>
+typedef unsigned __int32  uint32_t;
+
+#else
+#include <stdint.h>
+#endif
+
+class CPUID {
+	uint32_t regs[4];
+
+public:
+	explicit CPUID(unsigned i) {
+#ifdef _WIN32
+		__cpuid((int*)regs, (int)i);
+#else
+		asm volatile
+			("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
+				: "a" (i), "c" (0));
+		// ECX is set to zero for CPUID function 4
+#endif
+	}
+	const uint32_t& EAX() const { return regs[0]; }
+	const uint32_t& EBX() const { return regs[1]; }
+	const uint32_t& ECX() const { return regs[2]; }
+	const uint32_t& EDX() const { return regs[3]; }
+};
+
+#endif // CPUID_H
+
+static void PrintBrand() {
+	uint32_t brand[12];
+	for (int i = 0; i < 3; i++) 
+	{
+		CPUID d(0x80000002 + i);
+		brand[4*i + 0] = d.EAX();
+		brand[4*i + 1] = d.EBX();
+		brand[4*i + 2] = d.ECX();
+		brand[4*i + 3] = d.EDX();
+	}
+	printf("%s\n", (char*)brand);
+}
+
+
+
 #define Kogge_	 (1)
 #define Bob_	 (1)
 #define Plain_	 (1)
@@ -294,7 +343,7 @@ bool VerifyInit() {
 		}
 		occ = rand64() & rand64();
 	}
-	std::cout << "OK!\n";
+	std::cout << "OK!\n\n";
 	return true;
 }
 
@@ -353,7 +402,7 @@ double Get_MLU_EmulateGame()
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
 	double result = actualLU * 1000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-	std::cout << T::name << ": \t" << result << "MOps\t" << T::Size() / 1024 << " kB" << " perf dependency: " << T::sp_op << "\n";
+	std::cout << T::name << ": \t" << result << "MOps\t" << T::Size() / 1024 << " kB\t" << "Optimal perf: " << T::sp_op << "\n";
 	return result;
 }
 
@@ -396,7 +445,7 @@ double Get_MLU()
 #define Run2(X) if constexpr (X::name != "dummy") {Get_MLU_EmulateGame<X>(); }
 
 void GetPerf() {
-	std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game/s:\n";
+	std::cout << std::setprecision(2) << std::fixed << "Megalooks Simulated Game/s:\n";
 	Run(Explode_t);
 	Run(Switch_t);
 	Run(Kogge_t);
@@ -429,6 +478,7 @@ void GetPerf() {
 
 int main() {
 	VerifyInit();
+	PrintBrand();
 	GetPerf();
 
 	return 0;
