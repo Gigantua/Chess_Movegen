@@ -23,7 +23,7 @@ Prints which operation needs to be implemented in hardware for maximum performan
 - Windows: use Visual Studio Solution
 
 # How to use
-Just copy and past the .hpp file you would like to use in your own chess engine. Now you are done. No initialisation etc. needed (happens during compiletime)
+Just copy and paste the .hpp file you would like to use in your own chess engine. Now you are done. No initialisation etc. needed (happens during compiletime)
 
 namespace Lookup = Chess_Lookup::Lookup_Hyper;
 
