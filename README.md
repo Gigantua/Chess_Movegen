@@ -3,16 +3,6 @@ State of the art comparison of chess sliding piece algorithms.
 Prints memory consumption for each algorithm
 Prints which operation needs to be implemented in hardware for maximum performance
 
-# How to use
-Just copy and past the .hpp file you would like to use in your own chess engine. Now you are done. No initialisation etc. needed (happens during compiletime)
-
-namespace Lookup = Chess_Lookup::Lookup_Hyper;
-
-Lookup::Prepare(occ);
-
-uint64_t attacks = Lookup::Queen(sq);
-
-
 ## Currently implements:
 - Pext Lookup
 - Plain Hash
@@ -27,3 +17,19 @@ uint64_t attacks = Lookup::Queen(sq);
 - Slider Arithmetic
 - Xorshift Lookup
 - Hypercube Lookup
+
+# Build
+- Linux: make
+- Windows: use Visual Studio Solution
+
+# How to use
+Just copy and past the .hpp file you would like to use in your own chess engine. Now you are done. No initialisation etc. needed (happens during compiletime)
+
+namespace Lookup = Chess_Lookup::Lookup_Hyper;
+
+Lookup::Prepare(occ);
+
+uint64_t attacks = Lookup::Queen(sq);
+
+
+
