@@ -1,2 +1,2 @@
-# Chess_Movegen
-Comparison of state of the art chess sliding piece lookups
+# Chess Movegen
+State of the art comparison of chess sliding piece algorithms
