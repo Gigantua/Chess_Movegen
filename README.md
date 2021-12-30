@@ -1,7 +1,7 @@
 # Chess Movegen
 State of the art comparison of chess sliding piece algorithms.
 Prints memory consumption for each algorithm
-Prints which operation needs to be implemented in hardware for maximum performance
+Prints which operation needs to exist in hardware for maximum performance
 
 ## Currently implements:
 - Pext Lookup
