@@ -150,7 +150,7 @@ struct Bob_t {
 #include "Hyperchess.hpp"
 struct Hyper_t {
 	static inline constexpr std::string_view name = "HyperCube";
-	static inline constexpr std::string_view sp_op = "incremental, none";
+	static inline constexpr std::string_view sp_op = "none";
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Lookup_Hyper::Prepare(occ); }
 	static constexpr void Move(int from, int to) { Chess_Lookup::Lookup_Hyper::Move(from, to); }
 	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Lookup_Hyper::Move_Take(from, to); }
@@ -243,7 +243,7 @@ Dummy(XorRook_t);
 #include "Rotated.hpp"
 struct Rotate_t {
 	static inline constexpr std::string_view name = "RotatedBoard";
-	static inline constexpr std::string_view sp_op = "incremental, none";
+	static inline constexpr std::string_view sp_op = "none";
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Rotation::Prepare(occ); }
 	static constexpr void Move(int from, int to) { Chess_Lookup::Rotation::Move(from, to); }
 	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Rotation::Move_Take(from, to); }
