@@ -46,7 +46,7 @@ public:
 #endif // CPUID_H
 
 static void PrintBrand() {
-	uint32_t brand[12];
+	uint32_t brand[12]{};
 	for (int i = 0; i < 3; i++) 
 	{
 		CPUID d(0x80000002 + i);
@@ -67,7 +67,7 @@ static void PrintBrand() {
 #define Pext_	 (1)
 #define Hyper_	 (1)
 #define Explode_ (1)
-#define XorRook_ (1)
+#define HypQsc_  (1)
 #define Rotate_	 (1)
 #define Arithm_	 (1)
 #define QBB_	 (1)
@@ -228,16 +228,16 @@ struct Explode_t {
 Dummy(Explode_t);
 #endif
 
-#if XorRook_
-#include "XorRookSub.hpp"
-struct XorRook_t {
-	static inline constexpr std::string_view name = "XorRookSub";
+#if HypQsc_
+#include "Hyperbola.hpp"
+struct Hyperbola_t {
+	static inline constexpr std::string_view name = "Hyperbola Qsc";
 	static inline constexpr std::string_view sp_op = "bswap";
-	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::XorRookSub::Queen(sq, occ); }
-	static uint64_t Size() { return Chess_Lookup::XorRookSub::Size; }
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQsc::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::HyperbolaQsc::Size; }
 };
 #else 
-Dummy(XorRook_t);
+Dummy(Hyperbola_t);
 #endif
 
 #if Rotate_
@@ -352,7 +352,7 @@ bool VerifyInit() {
 				IsCorrect(Arithm_t);
 				IsCorrect(QBB_t);
 				IsCorrect(Explode_t);
-				IsCorrect(XorRook_t);
+				IsCorrect(Hyperbola_t);
 				IsCorrect(HVar_t);
 				IsCorrect(Plain_t);
 				IsCorrect(Fancy_t);
@@ -471,7 +471,7 @@ void GetPerf() {
 	Run(Bob_t);
 	Run(Arithm_t);
 	Run(Sissy_t);
-	Run(XorRook_t);
+	Run(Hyperbola_t);
 	Run(HVar_t);
 	Run(Plain_t);
 	Run(Fancy_t);
@@ -487,7 +487,7 @@ void GetPerf() {
 	Run2(Bob_t);
 	Run2(Arithm_t);
 	Run2(Sissy_t);
-	Run2(XorRook_t);
+	Run2(Hyperbola_t);
 	Run2(HVar_t);
 	Run2(Plain_t);
 	Run2(Fancy_t);

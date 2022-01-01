@@ -11,7 +11,7 @@ namespace Chess_Lookup::QBB
 {
     static constexpr uint64_t MSB(uint64_t value)
     {
-        return 63 - std::countl_zero(value);
+        return 63ull - std::countl_zero(value);
     }
 
     static constexpr uint64_t LSB(uint64_t value)
