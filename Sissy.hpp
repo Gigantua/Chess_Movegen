@@ -5,46 +5,18 @@
 
 namespace Chess_Lookup::SISSY
 {
-    typedef char s08;
-    typedef unsigned char u08;
-    typedef short s16;
-    typedef int s32;
-    typedef unsigned long u32;
-    typedef long long s64;
-    typedef unsigned long long u64;
-
-    constexpr auto one = 1ull;
-
-    union SplitBB {
-        struct {
-            u08 r1;
-            u08 r2;
-            u08 r3;
-            u08 r4;
-            u08 r5;
-            u08 r6;
-            u08 r7;
-            u08 r8;
-        };
-        struct {
-            u32 l32;
-            u32 h32;
-        };
-        u64 bb;
-    };
-
-    u64 qss[64][256][8];
-    u64 bss[64][128][6];
-    u64 bob[64];
-    u64 b7e[64];
-    u64 rob[64];
+    uint64_t qss[64][256][8];
+    uint64_t bss[64][128][6];
+    uint64_t bob[64];
+    uint64_t b7e[64];
+    uint64_t rob[64];
 
     constexpr auto Size = sizeof(qss) + sizeof(bss) + 3 * sizeof(bob);
 
     void InitializeBSS() {
-        u08 sq, sqr, k, l;
-        s08 x, dx, y, dy;
-        u64 b, bb, i, j, ii, jj;
+        uint8_t sq, sqr, k, l;
+        int8_t x, dx, y, dy;
+        uint64_t b, bb, i, j, ii, jj;
 
         for (sq = 0; sq < 64; sq++) {
             y = sq >> 3;
@@ -52,26 +24,26 @@ namespace Chess_Lookup::SISSY
             for (i = 0; i < 128; i++) {
                 for (k = 8, l = 0; k <= 48; k += 8, l++) {
                     bb = 0;
-                    b = ((u64)i << k) & bob[sq];
+                    b = ((uint64_t)i << k) & bob[sq];
                     for (dx = +1, dy = +1; x + dx < +8 && y + dy < +8; dx++, dy++) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = -1, dy = +1; x + dx > -1 && y + dy < +8; dx--, dy++) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = +1, dy = -1; x + dx < +8 && y + dy > -1; dx++, dy--) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = -1, dy = -1; x + dx > -1 && y + dy > -1; dx--, dy--) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     bss[sq][i][l] = bb;
                 }
@@ -96,10 +68,10 @@ namespace Chess_Lookup::SISSY
     }
 
     void InitializeQSS() {
-        u08 sq, sqr, k, l;
-        s08 x, y, dx, dy;
-        s32 i;
-        u64 b, bb;
+        uint8_t sq, sqr, k, l;
+        int8_t x, y, dx, dy;
+        int32_t i;
+        uint64_t b, bb;
 
         for (sq = 0; sq < 64; sq++) {
             y = sq >> 3;
@@ -109,54 +81,54 @@ namespace Chess_Lookup::SISSY
             for (i = 0; i < 256; i++) {
                 for (k = 0, l = 0; k <= 56; k += 8, l++) {
                     bb = 0;
-                    b = (u64)i << k;
+                    b = (uint64_t)i << k;
                     for (dx = +1, dy = +1; x + dx < +8 && y + dy < +8; dx++, dy++) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        bob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        bob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = -1, dy = +1; x + dx > -1 && y + dy < +8; dx--, dy++) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        bob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        bob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = +1, dy = -1; x + dx < +8 && y + dy > -1; dx++, dy--) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        bob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        bob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = -1, dy = -1; x + dx > -1 && y + dy > -1; dx--, dy--) {
                         sqr = (((y + dy) << 3) + x + dx);
-                        bb |= one << sqr;
-                        bob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        bob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = -1; x + dx > -1; dx--) {
                         sqr = (y << 3) + x + dx;
-                        bb |= one << sqr;
-                        rob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        rob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dx = +1; x + dx < +8; dx++) {
                         sqr = (y << 3) + x + dx;
-                        bb |= one << sqr;
-                        rob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        rob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dy = +1; y + dy < +8; dy++) {
                         sqr = ((y + dy) << 3) + x;
-                        bb |= one << sqr;
-                        rob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        rob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     for (dy = -1; y + dy > -1; dy--) {
                         sqr = ((y + dy) << 3) + x;
-                        bb |= one << sqr;
-                        rob[sq] |= one << sqr;
-                        if ((one << sqr) & b) break;
+                        bb |= 1ull << sqr;
+                        rob[sq] |= 1ull << sqr;
+                        if ((1ull << sqr) & b) break;
                     }
                     qss[sq][i][l] = bb;
                 }
