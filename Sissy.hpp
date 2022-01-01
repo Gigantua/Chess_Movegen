@@ -170,28 +170,6 @@ namespace Chess_Lookup::SISSY
         InitializeBSS();
     }
 
-    uint64_t Rook(int sq, uint64_t occ) {
-        SplitBB blocks{ occ & rob[sq] };
-
-        return qss[sq][(blocks.bb >> (sq & 56)) & 127][0]
-            & qss[sq][blocks.r2][1]
-            & qss[sq][blocks.r3][2]
-            & qss[sq][blocks.r4][3]
-            & qss[sq][blocks.r5][4]
-            & qss[sq][blocks.r6][5]
-            & qss[sq][blocks.r7][6]
-            & rob[sq];
-    }
-
-    uint64_t Bishop(int sq, uint64_t occ) {
-        SplitBB blocks{ occ & b7e[sq] };
-        blocks.bb = ((blocks.l32 >> 8) | blocks.h32);
-        return bss[sq][blocks.r1][0]
-            & bss[sq][blocks.r2][1]
-            & bss[sq][blocks.r3][2];
-    }
-
-
     uint64_t Queen(int sq, uint64_t occ) {
         return qss[sq][occ & 255][0]
             & qss[sq][(occ >> 8) & 255][1]
