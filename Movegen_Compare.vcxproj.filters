@@ -41,7 +41,7 @@
     <ClInclude Include="Exploading.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XorRookSub.hpp">
+    <ClInclude Include="Hyperbola.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rotated.hpp">

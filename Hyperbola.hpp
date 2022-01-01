@@ -1,9 +1,11 @@
+//(c) Gerd Isenberg, Aleks Peshkov 2007
+//Subtracting a Rook from a Blocking Piece - https://www.chessprogramming.org/Subtracting_a_Rook_from_a_Blocking_Piece
 
 #include <stdint.h>
 #include <array>
 #include <type_traits>
 
-namespace Chess_Lookup::XorRookSub {
+namespace Chess_Lookup::HyperbolaQsc {
 	struct Mask {
 		uint64_t diagonal;
 		uint64_t antidiagonal;
@@ -13,7 +15,7 @@ namespace Chess_Lookup::XorRookSub {
 	/* Init */
 	static constexpr std::array<Mask, 64> InitMask() {
 		int r, f, i, j, y;
-		int d[64];
+		int d[64]{};
 
 		std::array<Mask, 64> MASK{};
 
@@ -65,7 +67,7 @@ namespace Chess_Lookup::XorRookSub {
 					y2 |= b;
 					if ((o & b) == b) break;
 				}
-				rank_attack[x * 8 + f] = y2;
+				rank_attack[x * 8ull + f] = y2;
 			}
 		}
 		return rank_attack;

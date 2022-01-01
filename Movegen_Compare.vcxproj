@@ -163,7 +163,7 @@
     <ClInclude Include="Sissy.hpp" />
     <ClInclude Include="SlideArithm.hpp" />
     <ClInclude Include="Switch.hpp" />
-    <ClInclude Include="XorRookSub.hpp" />
+    <ClInclude Include="Hyperbola.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
