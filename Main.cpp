@@ -72,6 +72,7 @@ static void PrintBrand() {
 #define Arithm_	 (1)
 #define QBB_	 (1)
 #define HVar_	 (1)
+#define Sissy_	 (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -154,7 +155,7 @@ struct Hyper_t {
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Lookup_Hyper::Prepare(occ); }
 	static constexpr void Move(int from, int to) { Chess_Lookup::Lookup_Hyper::Move(from, to); }
 	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Lookup_Hyper::Move_Take(from, to); }
-	static uint64_t Queen(int sq) { return Chess_Lookup::Lookup_Hyper::Queen(sq); }
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Queen(sq, occ); }
 	static uint64_t Rook_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Rook_Xray(sq); }
 	static uint64_t Bish_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Bishop_Xray(sq); }
 	static uint64_t Size() { return Chess_Lookup::Lookup_Hyper::Size; }
@@ -279,6 +280,18 @@ struct QBB_t {
 Dummy(QBB_t);
 #endif
 
+#if Sissy_
+#include "Sissy.hpp"
+struct Sissy_t {
+	static inline constexpr std::string_view name = "SISSY BB";
+	static inline constexpr std::string_view sp_op = "none";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SISSY::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::SISSY::Size; }
+};
+#else 
+Dummy(Sissy_t);
+#endif
+
 
 
 static std::string _map(uint64_t value)
@@ -303,6 +316,12 @@ static std::string _map(uint64_t value)
 //Initialize and verify all algorithms
 bool VerifyInit() {
 	uint64_t occ = 0; 
+	
+#if Sissy_
+	//Todo: Constexpr initializer
+	Chess_Lookup::SISSY::Init();
+#endif
+
 	std::cout << "Verify Engines...";
 
 	//Todo shift n bits as blockers
@@ -338,6 +357,7 @@ bool VerifyInit() {
 				IsCorrect(Plain_t);
 				IsCorrect(Fancy_t);
 				IsCorrect(Pext_t);
+				IsCorrect(Sissy_t);
 				//IsCorrect(Hyper_t);
 			}
 		}
@@ -359,7 +379,7 @@ double Get_MLU_EmulateGame()
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	int actualLU = 0;
-	for (int i = 0; i < poscnt / 5; i++) {
+	for (int i = 0; i < poscnt / 15; i++) {
 		uint64_t occ = rand64() & rand64();
 		if constexpr (std::is_same<T, Hyper_t>()) {
 			Hyper_t::Prepare(occ); //Set init state
@@ -368,25 +388,27 @@ double Get_MLU_EmulateGame()
 			Rotate_t::Prepare(occ); //Set init state
 		}
 
-		//64 moves, 128 plies
+		//128 plies
 		for (int n = 0; n < 128; n++) {
 			int mode = 0;
-			for (int i = 0; i < 12; i++) {
+			for (int r = 0; r < 12; r++) {
+				//12 lookups into the position before making a random move...
 				if constexpr (std::is_same<T, Hyper_t>()) {
-					opt = T::Queen(rand32() & 63);
+					opt = T::Queen(rand32() & 63, occ);
 				}
 				else {
 					opt = T::Queen(rand32() & 63, occ);
 				}
 				actualLU++;
-				//if (++mode == 10) break;
 			}
 
+			//Make a random move from -> to
 			int from = rand32() & 63;
 			while (!(1ull << from)) from = rand32() & 63;
 			int to = rand32() & 63;
 			bool taking = (occ & (1ull << to)) != 0;
 
+			//Move now
 			if constexpr (std::is_same<T, Hyper_t>()) {
 				if (taking) Hyper_t::Move_Take(from, to);
 				else Hyper_t::Move(from, to);
@@ -396,6 +418,7 @@ double Get_MLU_EmulateGame()
 				else Rotate_t::Move(from, to);
 			}
 			
+			//Set occupancy
 			occ &= ~(1ull << from);
 			occ |= (1ull << to);
 		}
@@ -426,14 +449,8 @@ double Get_MLU()
 		}
 
 		for (int i = 0; i < 64; i++) {
-			if constexpr (std::is_same<T, Hyper_t>()) {
-				opt = T::Queen(i);
-			}
-			else {
-				opt = T::Queen(i, occ);
-			}
+			opt = T::Queen(i, occ);
 		}
-		
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
 	double result = poscnt * 64000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
@@ -445,7 +462,7 @@ double Get_MLU()
 #define Run2(X) if constexpr (X::name != "dummy") {Get_MLU_EmulateGame<X>(); }
 
 void GetPerf() {
-	std::cout << std::setprecision(2) << std::fixed << "Megalooks Simulated Game/s:\n";
+	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Occupation/s:\n";
 	Run(Explode_t);
 	Run(Switch_t);
 	Run(Kogge_t);
@@ -453,6 +470,7 @@ void GetPerf() {
 	Run(QBB_t);
 	Run(Bob_t);
 	Run(Arithm_t);
+	Run(Sissy_t);
 	Run(XorRook_t);
 	Run(HVar_t);
 	Run(Plain_t);
@@ -460,7 +478,7 @@ void GetPerf() {
 	Run(Pext_t);
 	Run(Hyper_t);
 	
-	std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Random Occupation/s:\n";
+	std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game / s:\n";
 	Run2(Explode_t);
 	Run2(Switch_t);
 	Run2(Kogge_t);
@@ -468,6 +486,7 @@ void GetPerf() {
 	Run2(QBB_t);
 	Run2(Bob_t);
 	Run2(Arithm_t);
+	Run2(Sissy_t);
 	Run2(XorRook_t);
 	Run2(HVar_t);
 	Run2(Plain_t);

@@ -614,7 +614,7 @@ namespace Chess_Lookup {
 			return BishopMovesXray[sq][cfgB[sq]];
 		}
 
-		static constexpr uint64_t Queen(int sq) {
+		static constexpr uint64_t Queen(int sq, uint64_t occ) {
 			return Rook(sq) | Bishop(sq);
 		}
 
