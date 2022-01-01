@@ -160,6 +160,7 @@
     <ClInclude Include="Pext.hpp" />
     <ClInclude Include="Hyperchess.hpp" />
     <ClInclude Include="KoggeStone.hpp" />
+    <ClInclude Include="Sissy.hpp" />
     <ClInclude Include="SlideArithm.hpp" />
     <ClInclude Include="Switch.hpp" />
     <ClInclude Include="XorRookSub.hpp" />

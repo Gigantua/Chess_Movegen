@@ -59,5 +59,8 @@
     <ClInclude Include="Hash_Fancy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sissy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
