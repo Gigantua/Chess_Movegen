@@ -33,19 +33,19 @@ uint64_t attacks = Lookup::Queen(sq);
 ```
 AMD Ryzen 9 5950X 16-Core Processor
 Megalooks Simulated Game/s:
-Exploading:     134.83MOps      6 kB    Optimal perf: imul64
-Reference:      126.06MOps      8 kB    Optimal perf: none
-KoggeStone:     171.12MOps      0 kB    Optimal perf: none
-RotatedBoard:   97.67MOps       14 kB   Optimal perf: incremental, none
-QBB Algo:       218.68MOps      0 kB    Optimal perf: countr_zero, countl_zero
-BobMike:        319.08MOps      8 kB    Optimal perf: countr_zero, countl_zero
-SlideArithm:    364.90MOps      2 kB    Optimal perf: bzhi_u64, blsmsk_u64
-XorRookSub:     523.88MOps      2 kB    Optimal perf: bswap
-Hash Variable:  575.98MOps      729 kB  Optimal perf: imul64
-Hash Plain:     639.94MOps      2306 kB Optimal perf: imul64
-Hash Fancy:     804.33MOps      694 kB  Optimal perf: imul64
-Pext  :         895.62MOps      843 kB  Optimal perf: pext_u64
-HyperCube:      271.05MOps      841 kB  Optimal perf: incremental, none
+Exploading:     150.89MOps      6 kB    Optimal perf: imul64
+Reference:      68.93MOps       8 kB    Optimal perf: none
+KoggeStone:     111.98MOps      0 kB    Optimal perf: none
+RotatedBoard:   92.37MOps       14 kB   Optimal perf: none
+QBB Algo:       171.72MOps      0 kB    Optimal perf: countr_zero, countl_zero
+BobMike:        211.32MOps      8 kB    Optimal perf: countr_zero, countl_zero
+SlideArithm:    256.04MOps      2 kB    Optimal perf: bzhi_u64, blsmsk_u64
+XorRookSub:     297.78MOps      2 kB    Optimal perf: bswap
+Hash Variable:  399.36MOps      729 kB  Optimal perf: imul64
+Hash Plain:     529.61MOps      2306 kB Optimal perf: imul64
+Hash Fancy:     597.36MOps      694 kB  Optimal perf: imul64
+Pext  :         925.24MOps      843 kB  Optimal perf: pext_u64
+HyperCube:      310.30MOps      841 kB  Optimal perf: none
 ```
 
 
