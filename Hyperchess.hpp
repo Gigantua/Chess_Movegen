@@ -17,8 +17,8 @@
 
 
 namespace Chess_Lookup {
-	static uint16_t cfgR[64]{};
-	static uint16_t cfgB[64]{};
+	static thread_local uint16_t cfgR[64]{};
+	static thread_local uint16_t cfgB[64]{};
 
 	//Jumptables
 	Inlined_ void SetSquare(int sq) {
