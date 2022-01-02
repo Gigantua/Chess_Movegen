@@ -1,5 +1,5 @@
 CC=clang++
-CFLAGS=-flto -O3 -march=native -funroll-loops -std=c++20 Main.cpp
+CFLAGS=-flto -O3 -march=native -funroll-loops -std=c++20 -pthread Main.cpp
 
 default: all
 
