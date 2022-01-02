@@ -11,6 +11,11 @@
 #include <string_view>
 #include <type_traits>
 
+#include <thread>
+#include <vector>
+#include <algorithm>
+#include <tuple>
+
 #ifndef CPUID_H
 #define CPUID_H
 
@@ -80,16 +85,26 @@ static void PrintBrand() {
 
 #define Dummy(X) struct X {static inline constexpr std::string_view name = "dummy"; static void Prepare(uint64_t occ) {}static uint64_t Queen(int sq, uint64_t occ) { return 0; }};
 
-static unsigned long rx = 123456789, ry = 362436069, rz = 521288629;
+static uint32_t rx = 123456789, ry = 362436069, rz = 521288629;
 uint32_t rand32(void) { //2^96-1
 	uint32_t t;
 	rx ^= rx << 16; rx ^= rx >> 5; rx ^= rx << 1;
 	t = rx; rx = ry; ry = rz; rz = t ^ rx ^ ry;
 	return rz;
 }
+uint32_t rand32_state(uint32_t& x, uint32_t& y, uint32_t& z) { //2^96-1
+	uint32_t t;
+	x^= x<< 16; x^= x>> 5; x^= x<< 1;
+	t = x; x= y; y = z; z = t ^ x^ y;
+	return z;
+}
 
 uint64_t rand64() {
 	return ((uint64_t)rand32() << 32ull) | rand32();
+}
+
+uint64_t rand64_state(uint32_t& x, uint32_t& y, uint32_t& z) {
+	return (static_cast<uint64_t>(rand32_state(x,y,z)) << 32ull) | static_cast<uint64_t>(rand32_state(x,y,z));
 }
 
 
@@ -448,8 +463,8 @@ double Get_MLU()
 			Rotate_t::Prepare(occ);
 		}
 
-		for (int i = 0; i < 64; i++) {
-			opt = T::Queen(i, occ);
+		for (int r = 0; r < 64; r++) {
+			opt = T::Queen(r, occ);
 		}
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -458,41 +473,163 @@ double Get_MLU()
 	return result;
 }
 
-#define Run(X) if constexpr (X::name != "dummy") {Get_MLU<X>(); }
-#define Run2(X) if constexpr (X::name != "dummy") {Get_MLU_EmulateGame<X>(); }
+typedef std::tuple<std::string_view, int, double> Thread_Perf_t;
+
+template<typename T>
+Thread_Perf_t Get_MLU_Threaded()
+{
+	const auto processor_count = std::thread::hardware_concurrency() + 8;
+	//Warmup once! - VERY important
+	{
+		uint32_t x = rand32();
+		uint32_t y = rand32();
+		uint32_t z = rand32();
+
+		for (int n = 0; n < poscnt / 8; n++) {
+			uint64_t occ = rand64_state(x, y, z) & rand64_state(x, y, z);
+
+			if constexpr (std::is_same<T, Hyper_t>()) {
+				Hyper_t::Prepare(occ);
+			}
+			if constexpr (std::is_same<T, Rotate_t>()) {
+				Rotate_t::Prepare(occ);
+			}
+			for (int r = 0; r < 64; r++) {
+				opt = T::Queen(r, occ);
+			}
+		}
+	}
+	double nano_ref = 0;
+
+	//Loop of multithreaded scaling
+
+	int bestThread = 1;
+	double bestLUPerf = 0;
+
+	std::cout << "\n" << T::name << " - " << T::Size() / 1024 << " kB\t""\n";
+	std::cout << "\tthreads\tspeed\tscaling\tMegalookups/s\n";
+	std::vector<std::thread> workers;
+	std::vector<std::tuple<uint32_t, uint32_t, uint32_t>> seeds;
+	for (int i = 1; i <= processor_count; i++) {
+
+		for (int I = 0; I < i; I++) seeds.push_back({ rand32(), rand32(), rand32() });
+
+		auto t1 = std::chrono::high_resolution_clock::now();
+		for (int I = 0; I < i; I++) {
+			workers.push_back(std::thread([I, seeds]()
+			{
+				uint32_t x = std::get<0>(seeds[I]);
+				uint32_t y = std::get<1>(seeds[I]);
+				uint32_t z = std::get<2>(seeds[I]);
+				volatile uint64_t topt = 0;
+
+				for (int n = 0; n < poscnt / 16; n++) {
+					uint64_t occ = rand64_state(x, y, z) & rand64_state(x, y, z);
+
+					if constexpr (std::is_same<T, Hyper_t>()) {
+						Hyper_t::Prepare(occ);
+					}
+					if constexpr (std::is_same<T, Rotate_t>()) {
+						Rotate_t::Prepare(occ);
+					}
+					for (int r = 0; r < 64; r++) {
+						topt = T::Queen(r, occ);
+					}
+				}
+			}));
+		}
+		//Join all threads
+		for (int I = 0; I < i; I++) workers[I].join();
+
+		auto t2 = std::chrono::high_resolution_clock::now();
+		workers.clear(); seeds.clear();
+		if (i == 1) nano_ref = static_cast<double>(duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+
+		auto nano_current = static_cast<double>(duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+
+		auto MLUps_ref = 1 * poscnt / 16 * 64000.0 / nano_ref;
+		auto MLUps = i * poscnt / 16 * 64000.0 / nano_current; //64000.0 = 64 lookup + nano to micro = MLUps
+
+		auto work_factor = MLUps / MLUps_ref;
+		auto scaling = work_factor / i;
+
+		if (MLUps > bestLUPerf) {
+			bestLUPerf = MLUps;
+			bestThread = i;
+		}
+
+		std::cout << "\t" <<i<<"\t" << work_factor << "\t" << scaling*100 << "%\t" << MLUps << "\n";
+	}
+
+	//double result = poscnt * processor_count * 64000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+	//std::cout << T::name << ": \t" << result << "MOps\t" << T::Size() / 1024 << " kB\t" << "Optimal perf: " << T::sp_op << "\n";
+	return { T::name, bestThread, bestLUPerf };
+}
+
+void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
+	for (auto& r : mt_res)
+	{
+		std::cout << std::get<0>(r) << ": \t"<<std::get<2>(r)<<"MOps \t"<<std::get<1>(r)<<"Threads\n";
+	}
+}
+
+#define RunNorm(X) if constexpr (X::name != "dummy") {Get_MLU<X>(); }
+#define RunMultithreaded(X) if constexpr (X::name != "dummy") { mt_res.push_back(Get_MLU_Threaded<X>()); }
+#define RunEmulated(X) if constexpr (X::name != "dummy") {Get_MLU_EmulateGame<X>(); }
+
+
 
 void GetPerf() {
-	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Occupation/s:\n";
-	Run(Explode_t);
-	Run(Switch_t);
-	Run(Kogge_t);
-	Run(Rotate_t);
-	Run(QBB_t);
-	Run(Bob_t);
-	Run(Arithm_t);
-	Run(Sissy_t);
-	Run(Hyperbola_t);
-	Run(HVar_t);
-	Run(Plain_t);
-	Run(Fancy_t);
-	Run(Pext_t);
-	Run(Hyper_t);
+	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Positions/s:\n";
+	//RunNorm(Explode_t);
+	//RunNorm(Switch_t);
+	//RunNorm(Kogge_t);
+	//RunNorm(Rotate_t);
+	//RunNorm(QBB_t);
+	//RunNorm(Bob_t);
+	//RunNorm(Arithm_t);
+	//RunNorm(Sissy_t);
+	//RunNorm(Hyperbola_t);
+	//RunNorm(HVar_t);
+	//RunNorm(Plain_t);
+	//RunNorm(Fancy_t);
+	//RunNorm(Pext_t);
+	//RunNorm(Hyper_t);
+
+	std::cout << std::setprecision(2) << std::fixed << "Megalookups Multithreaded Random Positions/s:\n";
+	std::vector<Thread_Perf_t> mt_res;
+	RunMultithreaded(Explode_t);
+	RunMultithreaded(Switch_t);
+	RunMultithreaded(Kogge_t);
+	RunMultithreaded(Rotate_t);
+	RunMultithreaded(QBB_t);
+	RunMultithreaded(Bob_t);
+	RunMultithreaded(Arithm_t);
+	RunMultithreaded(Sissy_t);
+	RunMultithreaded(Hyperbola_t);
+	RunMultithreaded(HVar_t);
+	RunMultithreaded(Plain_t);
+	RunMultithreaded(Fancy_t);
+	RunMultithreaded(Pext_t);
+	RunMultithreaded(Hyper_t);
 	
-	std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game / s:\n";
-	Run2(Explode_t);
-	Run2(Switch_t);
-	Run2(Kogge_t);
-	Run2(Rotate_t);
-	Run2(QBB_t);
-	Run2(Bob_t);
-	Run2(Arithm_t);
-	Run2(Sissy_t);
-	Run2(Hyperbola_t);
-	Run2(HVar_t);
-	Run2(Plain_t);
-	Run2(Fancy_t);
-	Run2(Pext_t);
-	Run2(Hyper_t);
+	PrintPerf(mt_res);
+	
+	std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game Single Thread/ s:\n";
+	RunEmulated(Explode_t);
+	RunEmulated(Switch_t);
+	RunEmulated(Kogge_t);
+	RunEmulated(Rotate_t);
+	RunEmulated(QBB_t);
+	RunEmulated(Bob_t);
+	RunEmulated(Arithm_t);
+	RunEmulated(Sissy_t);
+	RunEmulated(Hyperbola_t);
+	RunEmulated(HVar_t);
+	RunEmulated(Plain_t);
+	RunEmulated(Fancy_t);
+	RunEmulated(Pext_t);
+	RunEmulated(Hyper_t);
 }
 
 int main() {

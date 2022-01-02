@@ -58,9 +58,9 @@ as part of the board structure.
     const Bitboard begin_all_rl45 = 0x870f1e3c78f0e1c3ull;
     const Bitboard begin_all_rr45 = 0xc3e1f0783c1e0f87ull;
 
-    Bitboard all_rl90_{};
-    Bitboard all_rl45_{};
-    Bitboard all_rr45_{};
+    static thread_local Bitboard all_rl90_{};
+    static thread_local Bitboard all_rl45_{};
+    static thread_local Bitboard all_rr45_{};
     static constexpr void set_bit(uint64_t& bb_, int nr) { bb_ |= (0x1ull << nr); }
     static constexpr void clear_bit(uint64_t& bb_, int nr) { bb_ &= ~(0x1ull << nr); }
 
@@ -68,7 +68,7 @@ as part of the board structure.
     /*******************************************************************/
 
     // Bit numbers of the normal board in the rotated board
-    const byte normal_to_rl90[64] =
+    constexpr byte normal_to_rl90[64] =
     {
          0,  8, 16, 24, 32, 40, 48, 56,
          1,  9, 17, 25, 33, 41, 49, 57,
