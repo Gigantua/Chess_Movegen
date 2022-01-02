@@ -567,6 +567,7 @@ Thread_Perf_t Get_MLU_Threaded()
 }
 
 void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
+	std::cout << "\n\nSummary:\n";
 	for (auto& r : mt_res)
 	{
 		std::cout << std::get<0>(r) << ": \t"<<std::get<2>(r)<<"MOps \t"<<std::get<1>(r)<<"Threads\n";
