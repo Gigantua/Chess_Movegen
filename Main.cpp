@@ -75,6 +75,7 @@ static void PrintBrand() {
 #define HypQsc_  (1)
 #define Rotate_	 (1)
 #define Arithm_	 (1)
+#define Obstrd_	 (1)
 #define QBB_	 (1)
 #define HVar_	 (1)
 #define Sissy_	 (1)
@@ -283,6 +284,18 @@ struct Arithm_t {
 Dummy(Arithm_t);
 #endif
 
+#if Obstrd_
+#include "ObstructionDiff.hpp"
+struct Obstruct_t {
+	static inline constexpr std::string_view name = "Obstr. Diff";
+	static inline constexpr std::string_view sp_op = "countl_zero";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ObstructionDiff::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::ObstructionDiff::Size; }
+};
+#else 
+Dummy(Obstruct_t);
+#endif
+
 #if QBB_
 #include "QBB.hpp"
 struct QBB_t {
@@ -364,6 +377,7 @@ bool VerifyInit() {
 				IsCorrect(Kogge_t);
 				IsCorrect(Bob_t);
 				IsCorrect(Rotate_t);
+				IsCorrect(Obstruct_t);
 				IsCorrect(Arithm_t);
 				IsCorrect(QBB_t);
 				IsCorrect(Explode_t);
@@ -582,20 +596,21 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 
 void GetPerf() {
 	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Positions/s:\n";
-	//RunNorm(Explode_t);
-	//RunNorm(Switch_t);
-	//RunNorm(Kogge_t);
-	//RunNorm(Rotate_t);
-	//RunNorm(QBB_t);
-	//RunNorm(Bob_t);
-	//RunNorm(Arithm_t);
-	//RunNorm(Sissy_t);
-	//RunNorm(Hyperbola_t);
-	//RunNorm(HVar_t);
-	//RunNorm(Plain_t);
-	//RunNorm(Fancy_t);
-	//RunNorm(Pext_t);
-	//RunNorm(Hyper_t);
+	RunNorm(Explode_t);
+	RunNorm(Switch_t);
+	RunNorm(Kogge_t);
+	RunNorm(Rotate_t);
+	RunNorm(QBB_t);
+	RunNorm(Bob_t);
+	RunNorm(Obstruct_t);
+	RunNorm(Arithm_t);
+	RunNorm(Sissy_t);
+	RunNorm(Hyperbola_t);
+	RunNorm(HVar_t);
+	RunNorm(Plain_t);
+	RunNorm(Fancy_t);
+	RunNorm(Pext_t);
+	RunNorm(Hyper_t);
 
 	std::cout << std::setprecision(2) << std::fixed << "Megalookups Multithreaded Random Positions/s:\n";
 	std::vector<Thread_Perf_t> mt_res;
@@ -605,6 +620,7 @@ void GetPerf() {
 	RunMultithreaded(Rotate_t);
 	RunMultithreaded(QBB_t);
 	RunMultithreaded(Bob_t);
+	RunMultithreaded(Obstruct_t);
 	RunMultithreaded(Arithm_t);
 	RunMultithreaded(Sissy_t);
 	RunMultithreaded(Hyperbola_t);
@@ -616,21 +632,22 @@ void GetPerf() {
 	
 	PrintPerf(mt_res);
 	
-	std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game Single Thread/ s:\n";
-	RunEmulated(Explode_t);
-	RunEmulated(Switch_t);
-	RunEmulated(Kogge_t);
-	RunEmulated(Rotate_t);
-	RunEmulated(QBB_t);
-	RunEmulated(Bob_t);
-	RunEmulated(Arithm_t);
-	RunEmulated(Sissy_t);
-	RunEmulated(Hyperbola_t);
-	RunEmulated(HVar_t);
-	RunEmulated(Plain_t);
-	RunEmulated(Fancy_t);
-	RunEmulated(Pext_t);
-	RunEmulated(Hyper_t);
+	//std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game Single Thread/ s:\n";
+	//RunEmulated(Explode_t);
+	//RunEmulated(Switch_t);
+	//RunEmulated(Kogge_t);
+	//RunEmulated(Rotate_t);
+	//RunEmulated(QBB_t);
+	//RunEmulated(Bob_t);
+	//RunEmulated(Obstruct_t);
+	//RunEmulated(Arithm_t);
+	//RunEmulated(Sissy_t);
+	//RunEmulated(Hyperbola_t);
+	//RunEmulated(HVar_t);
+	//RunEmulated(Plain_t);
+	//RunEmulated(Fancy_t);
+	//RunEmulated(Pext_t);
+	//RunEmulated(Hyper_t);
 }
 
 int main() {
