@@ -154,6 +154,7 @@
     <ClInclude Include="Exploading.hpp" />
     <ClInclude Include="Hash_Fancy.hpp" />
     <ClInclude Include="Hash_Var.hpp" />
+    <ClInclude Include="ObstructionDiff.hpp" />
     <ClInclude Include="QBB.hpp" />
     <ClInclude Include="Rotated.hpp" />
     <ClInclude Include="Hash_Plain.hpp" />

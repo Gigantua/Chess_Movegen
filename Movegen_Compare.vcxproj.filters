@@ -62,5 +62,8 @@
     <ClInclude Include="Sissy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObstructionDiff.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
