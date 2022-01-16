@@ -1,7 +1,7 @@
 #pragma once
-// Datum  : 09.01.2022
-// Author : Michael Hoffmann
-// Content: Implementation of a bitboard attack getter for demo purposes.
+// Datum  : 16.01.2022
+// Author : Daniel Infuehr
+// Content: Translation of a bitboard attack getter by Michael Hoffmann for demo purposes.
 //          The code can be further "minimized!" because a real application
 //          alread includes bitoard masks and some of the functionality.
 //          These components are commented accordingly.

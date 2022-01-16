@@ -1,38 +1,56 @@
 #include <array>
 #include <bit>
 #include <cstdint>
+#ifdef __AVX2__
+#include <immintrin.h>
+#endif
 
 namespace Chess_Lookup::SlideArithm
 {
-	consteval bool safe_coord(int f, int r)
+	#define FileOf(S) ((S) & 7)
+
+	template<int dir>
+	consteval uint64_t dirMask(int sq)
 	{
-		return (0 <= f && f < 8) && (0 <= r && r < 8);
+		uint64_t C;
+		if constexpr (dir == 0) {
+			uint64_t C = 0xFFull;
+			return (C << (sq & 56)) & ~(1ull << sq);
+		}
+		else if constexpr (dir == 1) {
+			uint64_t C = 0x0101010101010101ull;
+			return (C << FileOf(sq)) & ~(1ull << sq);
+		}
+		else if constexpr (dir == 2) {
+			uint64_t C = 0x8040201008040201ull;
+			int d = 8 * FileOf(sq) - (sq & 56);
+			int n = -d & (d >> 31);
+			int s = d & (-d >> 31);
+			return ((C >> s) << n) & ~(1ull << sq);
+		}
+		else if constexpr (dir == 3) {
+			uint64_t C = 0x0102040810204080ull;
+			int d = 56 - 8 * FileOf(sq) - (sq & 56);
+			int n = -d & (d >> 31);
+			int s = d & (-d >> 31);
+			return ((C >> s) << n) & ~(1ull << sq);
+		}
 	}
-
-	consteval uint64_t init_mask(int s, int df, int dr)
-	{
-		uint64_t b{}; int f{}, r{};
-		f = s & 7; r = s >> 3;
-		while (safe_coord(f += df, r += dr))
-			b |= 1ull << (f + r * 8);
-
-		return b;
-	}
-
 	consteval std::array<uint64_t, 256> init_array()
 	{
 		std::array<uint64_t, 256> a{}; int n{};
 		for (int s = 0; s < 64; s++)
 		{
-			a[n++] = init_mask(s, 1, 0) | init_mask(s, -1, 0);
-			a[n++] = init_mask(s, 0, 1) | init_mask(s, 0, -1);
-			a[n++] = init_mask(s, 1, 1) | init_mask(s, -1, -1);
-			a[n++] = init_mask(s, -1, 1) | init_mask(s, 1, -1);
+			a[n++] = dirMask<0>(s);
+			a[n++] = dirMask<1>(s);
+			a[n++] = dirMask<2>(s);
+			a[n++] = dirMask<3>(s);
 		}
 		return a;
 	}
 	static constexpr std::array<uint64_t, 256> rank_mask = init_array();
 	constexpr auto Size = sizeof(rank_mask);
+
 
 
 	static uint64_t bzhi(uint64_t src, int idx) {

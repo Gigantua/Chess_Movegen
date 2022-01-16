@@ -68,5 +68,14 @@
     <ClInclude Include="ObstructionDiff_IL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dumb7Fill.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SlideArithm_IL.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hyperbola_IL.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
