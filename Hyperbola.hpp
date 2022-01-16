@@ -110,16 +110,16 @@ namespace Chess_Lookup::HyperbolaQsc {
 		return ((uint64_t)rank_attack[o * 4 + file_mask]) << rank_mask;
 	}
 
-	static constexpr uint64_t vertical_attack(uint64_t pieces, uint32_t x) {
-		return attack(pieces, x, mask[x].vertical);
+	static constexpr uint64_t vertical_attack(uint64_t occ, uint32_t sq) {
+		return attack(occ, sq, mask[sq].vertical);
 	}
 
-	static constexpr uint64_t diagonal_attack(uint64_t pieces, uint32_t x) {
-		return attack(pieces, x, mask[x].diagonal);
+	static constexpr uint64_t diagonal_attack(uint64_t occ, uint32_t sq) {
+		return attack(occ, sq, mask[sq].diagonal);
 	}
 
-	static constexpr uint64_t antidiagonal_attack(uint64_t pieces, uint32_t x) {
-		return attack(pieces, x, mask[x].antidiagonal);
+	static constexpr uint64_t antidiagonal_attack(uint64_t occ, uint32_t sq) {
+		return attack(occ, sq, mask[sq].antidiagonal);
 	}
 
 	static constexpr uint64_t bishop_attack(int sq, uint64_t occ) {
