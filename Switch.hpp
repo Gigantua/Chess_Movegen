@@ -1857,7 +1857,7 @@ namespace Chess_Lookup {
 		0x0004020000000000, 0x0008050000000000, 0x00110A0000000000, 0x0022140000000000, 0x0044280000000000, 0x0088500000000000, 0x0010A00000000000, 0x0020400000000000,
 		};
 
-		constexpr auto Size = 1024 * sizeof(uint64_t); //There is no table but code is that big!
+		constexpr auto Size = 0;
 		static constexpr uint64_t Rook(uint64_t square, uint64_t occupy) {
 			return GetSliderHCond(square, occupy) | GetSliderVCond(square, occupy);
 		}
