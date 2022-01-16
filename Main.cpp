@@ -76,6 +76,7 @@ static void PrintBrand() {
 #define Rotate_	 (1)
 #define Arithm_	 (1)
 #define Obstrd_	 (1)
+#define ObstrdNT_ (1)
 #define QBB_	 (1)
 #define HVar_	 (1)
 #define Sissy_	 (1)
@@ -229,9 +230,6 @@ struct Fancy_t {
 Dummy(Fancy_t);
 #endif
 
-
-
-
 #if Explode_
 #include "Exploading.hpp"
 struct Explode_t {
@@ -294,6 +292,19 @@ struct Obstruct_t {
 };
 #else 
 Dummy(Obstruct_t);
+#endif
+
+
+#if ObstrdNT_
+#include "ObstructionDiff_IL.hpp"
+struct ObstructNT_t {
+	static inline constexpr std::string_view name = "Obstr. Inline";
+	static inline constexpr std::string_view sp_op = "countl_zero";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ObstructionDiffInline::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::ObstructionDiffInline::Size; }
+};
+#else 
+Dummy(ObstructNT_t);
 #endif
 
 #if QBB_
@@ -378,6 +389,7 @@ bool VerifyInit() {
 				IsCorrect(Bob_t);
 				IsCorrect(Rotate_t);
 				IsCorrect(Obstruct_t);
+				IsCorrect(ObstructNT_t);
 				IsCorrect(Arithm_t);
 				IsCorrect(QBB_t);
 				IsCorrect(Explode_t);
@@ -603,6 +615,7 @@ void GetPerf() {
 	RunNorm(QBB_t);
 	RunNorm(Bob_t);
 	RunNorm(Obstruct_t);
+	RunNorm(ObstructNT_t);
 	RunNorm(Arithm_t);
 	RunNorm(Sissy_t);
 	RunNorm(Hyperbola_t);
@@ -621,6 +634,7 @@ void GetPerf() {
 	RunMultithreaded(QBB_t);
 	RunMultithreaded(Bob_t);
 	RunMultithreaded(Obstruct_t);
+	RunMultithreaded(ObstructNT_t);
 	RunMultithreaded(Arithm_t);
 	RunMultithreaded(Sissy_t);
 	RunMultithreaded(Hyperbola_t);
@@ -640,6 +654,7 @@ void GetPerf() {
 	//RunEmulated(QBB_t);
 	//RunEmulated(Bob_t);
 	//RunEmulated(Obstruct_t);
+	//RunEmulated(ObstructNT_t);
 	//RunEmulated(Arithm_t);
 	//RunEmulated(Sissy_t);
 	//RunEmulated(Hyperbola_t);
