@@ -73,6 +73,7 @@ static void PrintBrand() {
 #define Hyper_	 (1)
 #define Explode_ (1)
 #define HypQsc_  (1)
+#define HypQscNT_ (1)
 #define Rotate_	 (1)
 #define Arithm_	 (1)
 #define Obstrd_	 (1)
@@ -80,6 +81,7 @@ static void PrintBrand() {
 #define QBB_	 (1)
 #define HVar_	 (1)
 #define Sissy_	 (1)
+#define Dumb7_	 (0)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -139,12 +141,24 @@ struct Switch_t {
 	static uint64_t Size() { return Chess_Lookup::Lookup_Switch::Size; }
 };
 
+#if Dumb7_
+#include "Dumb7Fill.hpp"
+struct Dumb7_t {
+	static inline constexpr std::string_view name = "Dumb7 Fill";
+	static inline constexpr std::string_view sp_op = "none";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Dumb7Fill::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::Dumb7Fill::Size; }
+};
+#else 
+Dummy(Dumb7_t);
+#endif
+
+
 #if Kogge_
 #include "KoggeStone.hpp"
 struct Kogge_t {
 	static inline constexpr std::string_view name = "KoggeStone";
 	static inline constexpr std::string_view sp_op = "none";
-	static void Prepare(uint64_t occ) {}
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::KoggeStone::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::KoggeStone::Size; }
 };
@@ -254,6 +268,18 @@ struct Hyperbola_t {
 Dummy(Hyperbola_t);
 #endif
 
+#if HypQscNT_
+#include "Hyperbola_IL.hpp"
+struct HyperbolaNT_t {
+	static inline constexpr std::string_view name = "Hyperb.Inline";
+	static inline constexpr std::string_view sp_op = "bswap";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQscInline::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::HyperbolaQscInline::Size; }
+};
+#else 
+Dummy(HyperbolaNT_t);
+#endif
+
 #if Rotate_
 #include "Rotated.hpp"
 struct Rotate_t {
@@ -280,6 +306,18 @@ struct Arithm_t {
 };
 #else 
 Dummy(Arithm_t);
+#endif
+
+#if Arithm_
+#include "SlideArithm_IL.hpp"
+struct ArithmNT_t {
+	static inline constexpr std::string_view name = "SlideA Inline";
+	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SlideArithmInline::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::SlideArithmInline::Size; }
+};
+#else 
+Dummy(ArithmNT_t);
 #endif
 
 #if Obstrd_
@@ -385,15 +423,18 @@ bool VerifyInit() {
 				if (Hyper_t::Bish_Xray(i, occ) != xray_b) { std::cout << Hyper_t::name << "B XRAY failed. Reference:\n" << "Occupy: " << occ << "\n" << _map(occ) << "\nSolution:\n" << _map(xray_b) << "\nError:\n" << _map(Hyper_t::Bish_Xray(i, occ)); return false; }
 				#endif
 
+				IsCorrect(Dumb7_t);
 				IsCorrect(Kogge_t);
 				IsCorrect(Bob_t);
 				IsCorrect(Rotate_t);
 				IsCorrect(Obstruct_t);
 				IsCorrect(ObstructNT_t);
 				IsCorrect(Arithm_t);
+				IsCorrect(ArithmNT_t);
 				IsCorrect(QBB_t);
 				IsCorrect(Explode_t);
 				IsCorrect(Hyperbola_t);
+				IsCorrect(HyperbolaNT_t);
 				IsCorrect(HVar_t);
 				IsCorrect(Plain_t);
 				IsCorrect(Fancy_t);
@@ -594,6 +635,12 @@ Thread_Perf_t Get_MLU_Threaded()
 
 void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 	std::cout << "\n\nSummary:\n";
+
+	std::sort(mt_res.begin(), mt_res.end(), [](const Thread_Perf_t& a, const Thread_Perf_t& b) -> bool
+		{
+			return std::get<2>(a) > std::get<2>(b);
+		});
+
 	for (auto& r : mt_res)
 	{
 		std::cout << std::get<0>(r) << ": \t"<<std::get<2>(r)<<"MOps \t"<<std::get<1>(r)<<"Threads\n";
@@ -610,6 +657,7 @@ void GetPerf() {
 	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Positions/s:\n";
 	RunNorm(Explode_t);
 	RunNorm(Switch_t);
+	RunNorm(Dumb7_t);
 	RunNorm(Kogge_t);
 	RunNorm(Rotate_t);
 	RunNorm(QBB_t);
@@ -617,8 +665,10 @@ void GetPerf() {
 	RunNorm(Obstruct_t);
 	RunNorm(ObstructNT_t);
 	RunNorm(Arithm_t);
+	RunNorm(ArithmNT_t);
+	RunNorm(Hyperbola_t); 
+	RunNorm(HyperbolaNT_t);
 	RunNorm(Sissy_t);
-	RunNorm(Hyperbola_t);
 	RunNorm(HVar_t);
 	RunNorm(Plain_t);
 	RunNorm(Fancy_t);
@@ -629,6 +679,7 @@ void GetPerf() {
 	std::vector<Thread_Perf_t> mt_res;
 	RunMultithreaded(Explode_t);
 	RunMultithreaded(Switch_t);
+	RunMultithreaded(Dumb7_t);
 	RunMultithreaded(Kogge_t);
 	RunMultithreaded(Rotate_t);
 	RunMultithreaded(QBB_t);
@@ -636,8 +687,10 @@ void GetPerf() {
 	RunMultithreaded(Obstruct_t);
 	RunMultithreaded(ObstructNT_t);
 	RunMultithreaded(Arithm_t);
-	RunMultithreaded(Sissy_t);
+	RunMultithreaded(ArithmNT_t);
 	RunMultithreaded(Hyperbola_t);
+	RunMultithreaded(HyperbolaNT_t);
+	RunMultithreaded(Sissy_t);
 	RunMultithreaded(HVar_t);
 	RunMultithreaded(Plain_t);
 	RunMultithreaded(Fancy_t);
@@ -649,6 +702,7 @@ void GetPerf() {
 	//std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game Single Thread/ s:\n";
 	//RunEmulated(Explode_t);
 	//RunEmulated(Switch_t);
+	//RunEmulated(Dumb7_t);
 	//RunEmulated(Kogge_t);
 	//RunEmulated(Rotate_t);
 	//RunEmulated(QBB_t);
@@ -656,8 +710,10 @@ void GetPerf() {
 	//RunEmulated(Obstruct_t);
 	//RunEmulated(ObstructNT_t);
 	//RunEmulated(Arithm_t);
-	//RunEmulated(Sissy_t);
+	//RunEmulated(ArithmNT_t);
 	//RunEmulated(Hyperbola_t);
+	//RunEmulated(HyperbolaNT_t);
+	//RunEmulated(Sissy_t);
 	//RunEmulated(HVar_t);
 	//RunEmulated(Plain_t);
 	//RunEmulated(Fancy_t);

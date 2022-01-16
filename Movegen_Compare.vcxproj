@@ -151,9 +151,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boblookup.hpp" />
+    <ClInclude Include="Dumb7Fill.hpp" />
     <ClInclude Include="Exploading.hpp" />
     <ClInclude Include="Hash_Fancy.hpp" />
     <ClInclude Include="Hash_Var.hpp" />
+    <ClInclude Include="Hyperbola_IL.hpp" />
     <ClInclude Include="ObstructionDiff.hpp" />
     <ClInclude Include="ObstructionDiff_IL.hpp" />
     <ClInclude Include="QBB.hpp" />
@@ -164,6 +166,7 @@
     <ClInclude Include="KoggeStone.hpp" />
     <ClInclude Include="Sissy.hpp" />
     <ClInclude Include="SlideArithm.hpp" />
+    <ClInclude Include="SlideArithm_IL.hpp" />
     <ClInclude Include="Switch.hpp" />
     <ClInclude Include="Hyperbola.hpp" />
   </ItemGroup>
