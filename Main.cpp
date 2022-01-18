@@ -82,6 +82,8 @@ static void PrintBrand() {
 #define HVar_	 (1)
 #define Sissy_	 (1)
 #define Dumb7_	 (0)
+#define Leorik_	 (1)
+#define Leorik2_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -176,6 +178,30 @@ struct Bob_t {
 };
 #else 
 	Dummy(Bob_t);
+#endif
+
+#if Leorik_
+#include "Leorik.hpp"
+	struct Leorik_t {
+		static inline constexpr std::string_view name = "Leorik";
+		static inline constexpr std::string_view sp_op = "countl_zero";
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Leorik::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::Leorik::Size; }
+	};
+#else 
+	Dummy(Leorik_);
+#endif
+
+#if Leorik2_
+#include "LeorikLookup.hpp"
+	struct Leorik2_t {
+		static inline constexpr std::string_view name = "Leorik Lookup";
+		static inline constexpr std::string_view sp_op = "countl_zero";
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::LeorikLookup::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::LeorikLookup::Size; }
+	};
+#else 
+	Dummy(Leorik2_);
 #endif
 
 #if Hyper_
@@ -440,6 +466,8 @@ bool VerifyInit() {
 				IsCorrect(Fancy_t);
 				IsCorrect(Pext_t);
 				IsCorrect(Sissy_t);
+				IsCorrect(Leorik_t);
+				IsCorrect(Leorik2_t);
 				//IsCorrect(Hyper_t);
 			}
 		}
@@ -655,47 +683,58 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 
 void GetPerf() {
 	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Positions/s:\n";
-	RunNorm(Explode_t);
+	//zero tables
 	RunNorm(Switch_t);
-	RunNorm(Dumb7_t);
 	RunNorm(Kogge_t);
-	RunNorm(Rotate_t);
 	RunNorm(QBB_t);
-	RunNorm(Bob_t);
-	RunNorm(Obstruct_t);
 	RunNorm(ObstructNT_t);
-	RunNorm(Arithm_t);
 	RunNorm(ArithmNT_t);
-	RunNorm(Hyperbola_t); 
 	RunNorm(HyperbolaNT_t);
-	RunNorm(Sissy_t);
-	RunNorm(HVar_t);
-	RunNorm(Plain_t);
+	RunNorm(Leorik_t);
+	//small tables
+	RunNorm(Leorik2_t);
+	RunNorm(Arithm_t);
+	RunNorm(Hyperbola_t);
+	RunNorm(Explode_t);
+	RunNorm(Dumb7_t);
+	RunNorm(Obstruct_t);
+	RunNorm(Bob_t);
+	RunNorm(Rotate_t);
+	//big tables
 	RunNorm(Fancy_t);
-	RunNorm(Pext_t);
+	RunNorm(HVar_t);
 	RunNorm(Hyper_t);
+	RunNorm(Pext_t);
+	RunNorm(Sissy_t);
+	RunNorm(Plain_t);
 
 	std::cout << std::setprecision(2) << std::fixed << "Megalookups Multithreaded Random Positions/s:\n";
 	std::vector<Thread_Perf_t> mt_res;
-	RunMultithreaded(Explode_t);
+	//zero tables
 	RunMultithreaded(Switch_t);
-	RunMultithreaded(Dumb7_t);
 	RunMultithreaded(Kogge_t);
-	RunMultithreaded(Rotate_t);
 	RunMultithreaded(QBB_t);
-	RunMultithreaded(Bob_t);
-	RunMultithreaded(Obstruct_t);
 	RunMultithreaded(ObstructNT_t);
-	RunMultithreaded(Arithm_t);
 	RunMultithreaded(ArithmNT_t);
-	RunMultithreaded(Hyperbola_t);
 	RunMultithreaded(HyperbolaNT_t);
-	RunMultithreaded(Sissy_t);
-	RunMultithreaded(HVar_t);
-	RunMultithreaded(Plain_t);
+	RunMultithreaded(Leorik_t);
+	//small tables
+	RunMultithreaded(Leorik2_t);
+	RunMultithreaded(Arithm_t);
+	RunMultithreaded(Hyperbola_t);
+	RunMultithreaded(Explode_t);
+	RunMultithreaded(Dumb7_t);
+	RunMultithreaded(Obstruct_t);
+	RunMultithreaded(Bob_t);
+	RunMultithreaded(Rotate_t);
+	//big tables
 	RunMultithreaded(Fancy_t);
-	RunMultithreaded(Pext_t);
+	RunMultithreaded(HVar_t);
 	RunMultithreaded(Hyper_t);
+	RunMultithreaded(Pext_t);
+	RunMultithreaded(Sissy_t);
+	RunMultithreaded(Plain_t);
+
 	
 	PrintPerf(mt_res);
 	

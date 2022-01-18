@@ -77,5 +77,11 @@
     <ClInclude Include="Hyperbola_IL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Leorik.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LeorikLookup.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
