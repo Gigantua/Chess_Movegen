@@ -112,11 +112,41 @@ namespace Chess_Lookup::BobLU {
 		return r1;
 	}
 
+	template<int sq>
+	static constexpr uint64_t Bishop(uint64_t occ) {
+		uint64_t r2 = 0;
+		occ |= 0x8000000000000001;
+
+		r2 |= ray[sq].rayNW ^ ray[std::countr_zero(ray[sq].rwsNW & occ)].rayNW;
+		r2 |= ray[sq].rayNE ^ ray[std::countr_zero(ray[sq].rwsNE & occ)].rayNE;
+
+		r2 |= ray[sq].raySE ^ ray[63 - std::countl_zero(ray[sq].rwsSE & occ)].raySE;
+		r2 |= ray[sq].raySW ^ ray[63 - std::countl_zero(ray[sq].rwsSW & occ)].raySW;
+
+		return r2;
+	}
+
+	template<int sq>
+	static constexpr uint64_t Rook(uint64_t occ) {
+		uint64_t r1 = 0;
+		occ |= 0x8000000000000001;
+
+		r1 |= ray[sq].rayNN ^ ray[std::countr_zero(ray[sq].rwsNN & occ)].rayNN;
+		r1 |= ray[sq].rayEE ^ ray[std::countr_zero(ray[sq].rwsEE & occ)].rayEE;
+
+		r1 |= ray[sq].raySS ^ ray[63 - std::countl_zero(ray[sq].rwsSS & occ)].raySS;
+		r1 |= ray[sq].rayWW ^ ray[63 - std::countl_zero(ray[sq].rwsWW & occ)].rayWW;
+
+		return r1;
+	}
 
 	static constexpr uint64_t Queen(int sq, uint64_t occ) {
-		
 		return Rook(sq, occ) | Bishop(sq, occ);
 	}
 
+	template<int sq>
+	static constexpr uint64_t Queen(uint64_t occ) {
+		return Rook<sq>(occ) | Bishop<sq>(occ);
+	}
 	
 }

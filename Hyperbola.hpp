@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <array>
 #include <type_traits>
+#include <bit>
 
 namespace Chess_Lookup::HyperbolaQsc {
 	struct Mask {
@@ -98,7 +99,6 @@ namespace Chess_Lookup::HyperbolaQsc {
 	/* Generate attack using the hyperbola quintessence approach */
 	static constexpr uint64_t attack(uint64_t pieces, uint32_t x, uint64_t mask) {
 		uint64_t o = pieces & mask;
-
 		return ((o - (1ull << x)) ^ bit_bswap(bit_bswap(o) - (1ull << (x ^ 56)))) & mask;
 	}
 

@@ -70,6 +70,7 @@ static void PrintBrand() {
 #define Plain_	 (1)
 #define Fancy_	 (1)
 #define Pext_	 (1)
+#define PextEmu_ (1)
 #define Hyper_	 (1)
 #define Explode_ (1)
 #define HypQsc_  (1)
@@ -82,6 +83,8 @@ static void PrintBrand() {
 #define HVar_	 (1)
 #define Sissy_	 (1)
 #define Dumb7_	 (0)
+#define Leorik_	 (1)
+#define LeorikNT_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -111,6 +114,73 @@ uint64_t rand64_state(uint32_t& x, uint32_t& y, uint32_t& z) {
 	return (static_cast<uint64_t>(rand32_state(x,y,z)) << 32ull) | static_cast<uint64_t>(rand32_state(x,y,z));
 }
 
+#define Loop64(x, y) { \
+{constexpr int x = 0; {y;} } \
+{constexpr int x = 1; {y;} } \
+{constexpr int x = 2; {y;} } \
+{constexpr int x = 3; {y;} } \
+{constexpr int x = 4; {y;} } \
+{constexpr int x = 5; {y;} } \
+{constexpr int x = 6; {y;} } \
+{constexpr int x = 7; {y;} } \
+{constexpr int x = 8; {y;} } \
+{constexpr int x = 9; {y;} } \
+{constexpr int x = 10; {y;} } \
+{constexpr int x = 11; {y;} } \
+{constexpr int x = 12; {y;} } \
+{constexpr int x = 13; {y;} } \
+{constexpr int x = 14; {y;} } \
+{constexpr int x = 15; {y;} } \
+{constexpr int x = 16; {y;} } \
+{constexpr int x = 17; {y;} } \
+{constexpr int x = 18; {y;} } \
+{constexpr int x = 19; {y;} } \
+{constexpr int x = 20; {y;} } \
+{constexpr int x = 21; {y;} } \
+{constexpr int x = 22; {y;} } \
+{constexpr int x = 23; {y;} } \
+{constexpr int x = 24; {y;} } \
+{constexpr int x = 25; {y;} } \
+{constexpr int x = 26; {y;} } \
+{constexpr int x = 27; {y;} } \
+{constexpr int x = 28; {y;} } \
+{constexpr int x = 29; {y;} } \
+{constexpr int x = 30; {y;} } \
+{constexpr int x = 31; {y;} } \
+{constexpr int x = 32; {y;} } \
+{constexpr int x = 33; {y;} } \
+{constexpr int x = 34; {y;} } \
+{constexpr int x = 35; {y;} } \
+{constexpr int x = 36; {y;} } \
+{constexpr int x = 37; {y;} } \
+{constexpr int x = 38; {y;} } \
+{constexpr int x = 39; {y;} } \
+{constexpr int x = 40; {y;} } \
+{constexpr int x = 41; {y;} } \
+{constexpr int x = 42; {y;} } \
+{constexpr int x = 43; {y;} } \
+{constexpr int x = 44; {y;} } \
+{constexpr int x = 45; {y;} } \
+{constexpr int x = 46; {y;} } \
+{constexpr int x = 47; {y;} } \
+{constexpr int x = 48; {y;} } \
+{constexpr int x = 49; {y;} } \
+{constexpr int x = 50; {y;} } \
+{constexpr int x = 51; {y;} } \
+{constexpr int x = 52; {y;} } \
+{constexpr int x = 53; {y;} } \
+{constexpr int x = 54; {y;} } \
+{constexpr int x = 55; {y;} } \
+{constexpr int x = 56; {y;} } \
+{constexpr int x = 57; {y;} } \
+{constexpr int x = 58; {y;} } \
+{constexpr int x = 59; {y;} } \
+{constexpr int x = 60; {y;} } \
+{constexpr int x = 61; {y;} } \
+{constexpr int x = 62; {y;} } \
+{constexpr int x = 63; {y;} } \
+}
+
 
 template<int N>
 static void ConstPrint(const char* name, uint64_t source[N])
@@ -132,18 +202,22 @@ static void ConstPrint(const char* name, uint64_t source[N])
 //Reference
 #include "Switch.hpp"
 struct Switch_t {
+	static constexpr bool Supports_Template = true;
+
 	static inline constexpr std::string_view name = "Reference";
 	static inline constexpr std::string_view sp_op = "none";
 	static void Prepare(uint64_t occ) {}
-	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Queen(sq, occ); }
-	static uint64_t Rook_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Rook_Xray(sq, occ); }
-	static uint64_t Bish_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Bishop_Xray(sq, occ); }
-	static uint64_t Size() { return Chess_Lookup::Lookup_Switch::Size; }
+	static constexpr uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Queen(sq, occ); }
+	template <int sq> static constexpr uint64_t Queen(uint64_t occ) { return Chess_Lookup::Lookup_Switch::Queen<sq>(occ); }
+	static constexpr uint64_t Rook_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Rook_Xray(sq, occ); }
+	static constexpr uint64_t Bish_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Bishop_Xray(sq, occ); }
+	static constexpr uint64_t Size() { return Chess_Lookup::Lookup_Switch::Size; }
 };
 
 #if Dumb7_
 #include "Dumb7Fill.hpp"
 struct Dumb7_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Dumb7 Fill";
 	static inline constexpr std::string_view sp_op = "none";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Dumb7Fill::Queen(sq, occ); }
@@ -157,6 +231,7 @@ Dummy(Dumb7_t);
 #if Kogge_
 #include "KoggeStone.hpp"
 struct Kogge_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "KoggeStone";
 	static inline constexpr std::string_view sp_op = "none";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::KoggeStone::Queen(sq, occ); }
@@ -169,24 +244,54 @@ struct Kogge_t {
 #if Bob_
 #include "Boblookup.hpp"
 struct Bob_t {
+	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "BobMike";
 	static inline constexpr std::string_view sp_op = "countr_zero, countl_zero";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::BobLU::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::BobLU::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::BobLU::Size; }
 };
 #else 
 	Dummy(Bob_t);
 #endif
 
+#if Leorik_
+#include "Leorik.hpp"
+	struct Leorik_t {
+		static constexpr bool Supports_Template = false;
+		static inline constexpr std::string_view name = "Leorik";
+		static inline constexpr std::string_view sp_op = "countl_zero";
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Leorik::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::Leorik::Size; }
+	};
+#else 
+	Dummy(Leorik_t);
+#endif
+
+#if LeorikNT_
+#include "Leorik_IL.hpp"
+	struct LeorikNT_t {
+		static constexpr bool Supports_Template = false;
+		static inline constexpr std::string_view name = "Leorik Lookup";
+		static inline constexpr std::string_view sp_op = "countl_zero";
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::LeorikIL::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::LeorikIL::Size; }
+	};
+#else 
+	Dummy(LeorikNT_t);
+#endif
+
 #if Hyper_
 #include "Hyperchess.hpp"
 struct Hyper_t {
+	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "HyperCube";
 	static inline constexpr std::string_view sp_op = "none";
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Lookup_Hyper::Prepare(occ); }
 	static constexpr void Move(int from, int to) { Chess_Lookup::Lookup_Hyper::Move(from, to); }
 	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Lookup_Hyper::Move_Take(from, to); }
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Queen<sq>(occ); }
 	static uint64_t Rook_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Rook_Xray(sq); }
 	static uint64_t Bish_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Hyper::Bishop_Xray(sq); }
 	static uint64_t Size() { return Chess_Lookup::Lookup_Hyper::Size; }
@@ -197,10 +302,25 @@ struct Hyper_t {
 
 #if Pext_
 #include "Pext.hpp"
-struct Pext_t {
-	static inline constexpr std::string_view name = "Pext  ";
-	static inline constexpr std::string_view sp_op = "pext_u64";
-	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen(sq, occ); }
+	struct Pext_t {
+		static constexpr bool Supports_Template = true;
+		static inline constexpr std::string_view name = "Pext  ";
+		static inline constexpr std::string_view sp_op = "pext_u64";
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen(sq, occ); }
+		template <int sq> static constexpr uint64_t Queen(uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen<sq>(occ); }
+		static uint64_t Size() { return Chess_Lookup::Lookup_Pext::Size; }
+	};
+#else 
+	Dummy(Pext_t);
+#endif
+
+#if PextEmu_
+#include "Pext.hpp"
+struct PextEmu_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Pext Emulated";
+	static inline constexpr std::string_view sp_op = "none";
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen_Emulated(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::Lookup_Pext::Size; }
 };
 #else 
@@ -210,6 +330,7 @@ struct Pext_t {
 #if Plain_
 #include "Hash_Plain.hpp"
 struct Plain_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Hash Plain";
 	static inline constexpr std::string_view sp_op = "imul64";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Plain::Queen(sq, occ); }
@@ -222,9 +343,11 @@ Dummy(Plain_t);
 #if HVar_
 #include "Hash_Var.hpp"
 struct HVar_t {
+	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "Hash Variable";
 	static inline constexpr std::string_view sp_op = "imul64";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Var::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::Var::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::Var::Size; }
 };
 #else 
@@ -235,6 +358,7 @@ Dummy(HVar_t);
 #if Fancy_
 #include "Hash_Fancy.hpp"
 struct Fancy_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Hash Fancy";
 	static inline constexpr std::string_view sp_op = "imul64";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Fancy::Queen(sq, occ); }
@@ -247,6 +371,7 @@ Dummy(Fancy_t);
 #if Explode_
 #include "Exploading.hpp"
 struct Explode_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Exploading";
 	static inline constexpr std::string_view sp_op = "imul64";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ExplodingBoard::Queen(sq, occ); }
@@ -259,6 +384,7 @@ Dummy(Explode_t);
 #if HypQsc_
 #include "Hyperbola.hpp"
 struct Hyperbola_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Hyperbola Qsc";
 	static inline constexpr std::string_view sp_op = "bswap";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQsc::Queen(sq, occ); }
@@ -271,9 +397,11 @@ Dummy(Hyperbola_t);
 #if HypQscNT_
 #include "Hyperbola_IL.hpp"
 struct HyperbolaNT_t {
+	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "Hyperb.Inline";
 	static inline constexpr std::string_view sp_op = "bswap";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQscInline::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::HyperbolaQscInline::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::HyperbolaQscInline::Size; }
 };
 #else 
@@ -283,6 +411,7 @@ Dummy(HyperbolaNT_t);
 #if Rotate_
 #include "Rotated.hpp"
 struct Rotate_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "RotatedBoard";
 	static inline constexpr std::string_view sp_op = "none";
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Rotation::Prepare(occ); }
@@ -299,6 +428,7 @@ Dummy(Rotate_t);
 #if Arithm_
 #include "SlideArithm.hpp"
 struct Arithm_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "SlideArithm";
 	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SlideArithm::Queen(sq, occ); }
@@ -311,6 +441,7 @@ Dummy(Arithm_t);
 #if Arithm_
 #include "SlideArithm_IL.hpp"
 struct ArithmNT_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "SlideA Inline";
 	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SlideArithmInline::Queen(sq, occ); }
@@ -323,6 +454,7 @@ Dummy(ArithmNT_t);
 #if Obstrd_
 #include "ObstructionDiff.hpp"
 struct Obstruct_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Obstr. Diff";
 	static inline constexpr std::string_view sp_op = "countl_zero";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ObstructionDiff::Queen(sq, occ); }
@@ -336,9 +468,11 @@ Dummy(Obstruct_t);
 #if ObstrdNT_
 #include "ObstructionDiff_IL.hpp"
 struct ObstructNT_t {
+	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "Obstr. Inline";
 	static inline constexpr std::string_view sp_op = "countl_zero";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ObstructionDiffInline::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::ObstructionDiffInline::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::ObstructionDiffInline::Size; }
 };
 #else 
@@ -348,9 +482,11 @@ Dummy(ObstructNT_t);
 #if QBB_
 #include "QBB.hpp"
 struct QBB_t {
+	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "QBB Algo";
 	static inline constexpr std::string_view sp_op = "countr_zero, countl_zero";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::QBB::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::QBB::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::QBB::Size; }
 };
 #else 
@@ -360,6 +496,7 @@ Dummy(QBB_t);
 #if Sissy_
 #include "Sissy.hpp"
 struct Sissy_t {
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "SISSY BB";
 	static inline constexpr std::string_view sp_op = "none";
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SISSY::Queen(sq, occ); }
@@ -386,6 +523,30 @@ static std::string _map(uint64_t value)
 	return str;
 }
 
+
+#define TestAlgo(X)	 \
+X(Explode_t);		 \
+X(Switch_t);		 \
+X(PextEmu_t);		 \
+X(Dumb7_t);			 \
+X(Kogge_t);			 \
+X(Rotate_t);		 \
+X(QBB_t);			 \
+X(Bob_t);			 \
+X(Leorik_t);		 \
+X(LeorikNT_t);		 \
+X(Obstruct_t);		 \
+X(ObstructNT_t);	 \
+X(Arithm_t);		 \
+X(ArithmNT_t);		 \
+X(Hyperbola_t);		 \
+X(HyperbolaNT_t)	 \
+X(Sissy_t);			 \
+X(HVar_t);			 \
+X(Plain_t);			 \
+X(Fancy_t);			 \
+X(Pext_t);			 \
+X(Hyper_t);			 \
 
 #define IsCorrect(X) if constexpr (X::name != "dummy") {if (X::Queen(i, occ) != atk_ref) { std::cout << X::name <<"failed. Reference:\n"<<"Occupy: "<<occ<<"\n"<<_map(occ)<<"\nSolution:\n"<<_map(atk_ref) <<"\nError:\n"<<_map(X::Queen(i, occ)); return false; }}
 
@@ -423,24 +584,7 @@ bool VerifyInit() {
 				if (Hyper_t::Bish_Xray(i, occ) != xray_b) { std::cout << Hyper_t::name << "B XRAY failed. Reference:\n" << "Occupy: " << occ << "\n" << _map(occ) << "\nSolution:\n" << _map(xray_b) << "\nError:\n" << _map(Hyper_t::Bish_Xray(i, occ)); return false; }
 				#endif
 
-				IsCorrect(Dumb7_t);
-				IsCorrect(Kogge_t);
-				IsCorrect(Bob_t);
-				IsCorrect(Rotate_t);
-				IsCorrect(Obstruct_t);
-				IsCorrect(ObstructNT_t);
-				IsCorrect(Arithm_t);
-				IsCorrect(ArithmNT_t);
-				IsCorrect(QBB_t);
-				IsCorrect(Explode_t);
-				IsCorrect(Hyperbola_t);
-				IsCorrect(HyperbolaNT_t);
-				IsCorrect(HVar_t);
-				IsCorrect(Plain_t);
-				IsCorrect(Fancy_t);
-				IsCorrect(Pext_t);
-				IsCorrect(Sissy_t);
-				//IsCorrect(Hyper_t);
+				TestAlgo(IsCorrect);
 			}
 		}
 		occ = rand64() & rand64();
@@ -450,7 +594,7 @@ bool VerifyInit() {
 }
 
 const uint64_t poscnt = 1000000;
-volatile uint64_t opt = 0;
+thread_local volatile uint64_t opt = 0;
 
 //Assume 50 moves for a board with 8 sliders. (2 already off the board)
 template<typename T>
@@ -540,12 +684,60 @@ double Get_MLU()
 	return result;
 }
 
+template<typename T>
+double Get_MLU_KnownSourceSquare()
+{
+	//Set seeds to be fair to every movegen
+	rx = 123456789, ry = 362436069, rz = 521288629;
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < poscnt; i++) {
+		uint64_t occ = rand64() & rand64();
+
+		if constexpr (std::is_same<T, Hyper_t>()) {
+			Hyper_t::Prepare(occ);
+		}
+		if constexpr (std::is_same<T, Rotate_t>()) {
+			Rotate_t::Prepare(occ);
+		}
+
+		{
+			if constexpr (T::Supports_Template) {
+				opt = T::template Queen<55>(occ); opt = T::template Queen<62>(occ); opt = T::template Queen<52>(occ); opt = T::template Queen<37>(occ); opt = T::template Queen<1>(occ); opt = T::template Queen<42>(occ); opt = T::template Queen<32>(occ); opt = T::template Queen<4>(occ);
+				opt = T::template Queen<1>(occ); opt = T::template Queen<40>(occ); opt = T::template Queen<19>(occ); opt = T::template Queen<19>(occ); opt = T::template Queen<55>(occ); opt = T::template Queen<34>(occ); opt = T::template Queen<51>(occ); opt = T::template Queen<25>(occ);
+				opt = T::template Queen<24>(occ); opt = T::template Queen<5>(occ); opt = T::template Queen<63>(occ); opt = T::template Queen<53>(occ); opt = T::template Queen<21>(occ); opt = T::template Queen<13>(occ); opt = T::template Queen<63>(occ); opt = T::template Queen<18>(occ);
+				opt = T::template Queen<23>(occ); opt = T::template Queen<38>(occ); opt = T::template Queen<50>(occ); opt = T::template Queen<39>(occ); opt = T::template Queen<26>(occ); opt = T::template Queen<55>(occ); opt = T::template Queen<44>(occ); opt = T::template Queen<56>(occ);
+				opt = T::template Queen<63>(occ); opt = T::template Queen<58>(occ); opt = T::template Queen<0>(occ); opt = T::template Queen<50>(occ); opt = T::template Queen<16>(occ); opt = T::template Queen<45>(occ); opt = T::template Queen<58>(occ); opt = T::template Queen<15>(occ);
+				opt = T::template Queen<24>(occ); opt = T::template Queen<16>(occ); opt = T::template Queen<4>(occ); opt = T::template Queen<58>(occ); opt = T::template Queen<17>(occ); opt = T::template Queen<8>(occ); opt = T::template Queen<4>(occ); opt = T::template Queen<38>(occ);
+				opt = T::template Queen<63>(occ); opt = T::template Queen<13>(occ); opt = T::template Queen<39>(occ); opt = T::template Queen<6>(occ); opt = T::template Queen<26>(occ); opt = T::template Queen<27>(occ); opt = T::template Queen<2>(occ); opt = T::template Queen<37>(occ);
+				opt = T::template Queen<43>(occ); opt = T::template Queen<55>(occ); opt = T::template Queen<52>(occ); opt = T::template Queen<3>(occ); opt = T::template Queen<48>(occ); opt = T::template Queen<17>(occ); opt = T::template Queen<4>(occ); opt = T::template Queen<15>(occ);
+			}
+			else {
+				opt = T::Queen(55, occ); opt = T::Queen(62, occ); opt = T::Queen(52, occ); opt = T::Queen(37, occ); opt = T::Queen(1, occ); opt = T::Queen(42, occ); opt = T::Queen(32, occ); opt = T::Queen(4, occ);
+				opt = T::Queen(1, occ); opt = T::Queen(40, occ); opt = T::Queen(19, occ); opt = T::Queen(19, occ); opt = T::Queen(55, occ); opt = T::Queen(34, occ); opt = T::Queen(51, occ); opt = T::Queen(25, occ);
+				opt = T::Queen(24, occ); opt = T::Queen(5, occ); opt = T::Queen(63, occ); opt = T::Queen(53, occ); opt = T::Queen(21, occ); opt = T::Queen(13, occ); opt = T::Queen(63, occ); opt = T::Queen(18, occ);
+				opt = T::Queen(23, occ); opt = T::Queen(38, occ); opt = T::Queen(50, occ); opt = T::Queen(39, occ); opt = T::Queen(26, occ); opt = T::Queen(55, occ); opt = T::Queen(44, occ); opt = T::Queen(56, occ);
+				opt = T::Queen(63, occ); opt = T::Queen(58, occ); opt = T::Queen(0, occ); opt = T::Queen(50, occ); opt = T::Queen(16, occ); opt = T::Queen(45, occ); opt = T::Queen(58, occ); opt = T::Queen(15, occ);
+				opt = T::Queen(24, occ); opt = T::Queen(16, occ); opt = T::Queen(4, occ); opt = T::Queen(58, occ); opt = T::Queen(17, occ); opt = T::Queen(8, occ); opt = T::Queen(4, occ); opt = T::Queen(38, occ);
+				opt = T::Queen(63, occ); opt = T::Queen(13, occ); opt = T::Queen(39, occ); opt = T::Queen(6, occ); opt = T::Queen(26, occ); opt = T::Queen(27, occ); opt = T::Queen(2, occ); opt = T::Queen(37, occ);
+				opt = T::Queen(43, occ); opt = T::Queen(55, occ); opt = T::Queen(52, occ); opt = T::Queen(3, occ); opt = T::Queen(48, occ); opt = T::Queen(17, occ); opt = T::Queen(4, occ); opt = T::Queen(15, occ);
+			}
+		}
+		
+	}
+	auto is_tmpl = T::Supports_Template ? "yes" : " no";
+	auto t2 = std::chrono::high_resolution_clock::now();
+	double result = poscnt * 64000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+	std::cout << T::name << ": \t" << result << "MOps\t" << T::Size() / 1024 << " kB\t" << "Optimal perf: " << T::sp_op <<" templ: " << is_tmpl << "\n";
+	return result;
+}
+
 typedef std::tuple<std::string_view, int, double> Thread_Perf_t;
 
 template<typename T>
 Thread_Perf_t Get_MLU_Threaded()
 {
-	const auto processor_count = std::thread::hardware_concurrency() + 8;
+	const int processor_count = std::thread::hardware_concurrency() + 8;
 	//Warmup once! - VERY important
 	{
 		uint32_t x = rand32();
@@ -582,6 +774,8 @@ Thread_Perf_t Get_MLU_Threaded()
 		for (int I = 0; I < i; I++) seeds.push_back({ rand32(), rand32(), rand32() });
 
 		auto t1 = std::chrono::high_resolution_clock::now();
+		
+
 		for (int I = 0; I < i; I++) {
 			workers.push_back(std::thread([I, seeds]()
 			{
@@ -589,6 +783,7 @@ Thread_Perf_t Get_MLU_Threaded()
 				uint32_t y = std::get<1>(seeds[I]);
 				uint32_t z = std::get<2>(seeds[I]);
 				volatile uint64_t topt = 0;
+				uint64_t local_opt = 0;
 
 				for (int n = 0; n < poscnt / 16; n++) {
 					uint64_t occ = rand64_state(x, y, z) & rand64_state(x, y, z);
@@ -599,10 +794,17 @@ Thread_Perf_t Get_MLU_Threaded()
 					if constexpr (std::is_same<T, Rotate_t>()) {
 						Rotate_t::Prepare(occ);
 					}
-					for (int r = 0; r < 64; r++) {
-						topt = T::Queen(r, occ);
-					}
+					Loop64(r, {
+							if constexpr (T::Supports_Template)
+							{
+								local_opt ^= T::template Queen<r>(occ);
+							}
+							else {
+								local_opt ^= T::Queen(r, occ);
+							}
+						});
 				}
+				topt = local_opt;
 			}));
 		}
 		//Join all threads
@@ -614,8 +816,8 @@ Thread_Perf_t Get_MLU_Threaded()
 
 		auto nano_current = static_cast<double>(duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
 
-		auto MLUps_ref = 1 * poscnt / 16 * 64000.0 / nano_ref;
-		auto MLUps = i * poscnt / 16 * 64000.0 / nano_current; //64000.0 = 64 lookup + nano to micro = MLUps
+		auto MLUps_ref = 1 * poscnt / 16.0 * 64000.0 / nano_ref;
+		auto MLUps = i * poscnt / 16.0 * 64000.0 / nano_current; //64000.0 = 64 lookup + nano to micro = MLUps
 
 		auto work_factor = MLUps / MLUps_ref;
 		auto scaling = work_factor / i;
@@ -647,78 +849,30 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 	}
 }
 
-#define RunNorm(X) if constexpr (X::name != "dummy") {Get_MLU<X>(); }
-#define RunMultithreaded(X) if constexpr (X::name != "dummy") { mt_res.push_back(Get_MLU_Threaded<X>()); }
-#define RunEmulated(X) if constexpr (X::name != "dummy") {Get_MLU_EmulateGame<X>(); }
+
+
+
+																												  
+#define Norm(X) if constexpr (X::name != "dummy")		   { Get_MLU<X>(); }									  //Random pos, Random occupation, 1 Thread
+#define NormSquare(X) if constexpr (X::name != "dummy")	   { Get_MLU_KnownSourceSquare<X>(); }					  //Known  pos, Random occupation, 1 Thread
+#define Multithreaded(X) if constexpr (X::name != "dummy") { mt_res.push_back(Get_MLU_Threaded<X>()); }			  //Random pos, Random occupation, N Threads
+#define Emulated(X) if constexpr (X::name != "dummy")	   { Get_MLU_EmulateGame<X>(); }						  //Random pos, Emulated game occ, 1 Thread
 
 
 
 void GetPerf() {
-	std::cout << std::setprecision(2) << std::fixed << "Megalooks Random Positions/s:\n";
-	RunNorm(Explode_t);
-	RunNorm(Switch_t);
-	RunNorm(Dumb7_t);
-	RunNorm(Kogge_t);
-	RunNorm(Rotate_t);
-	RunNorm(QBB_t);
-	RunNorm(Bob_t);
-	RunNorm(Obstruct_t);
-	RunNorm(ObstructNT_t);
-	RunNorm(Arithm_t);
-	RunNorm(ArithmNT_t);
-	RunNorm(Hyperbola_t); 
-	RunNorm(HyperbolaNT_t);
-	RunNorm(Sissy_t);
-	RunNorm(HVar_t);
-	RunNorm(Plain_t);
-	RunNorm(Fancy_t);
-	RunNorm(Pext_t);
-	RunNorm(Hyper_t);
+	//std::cout << "Megalooks Random Positions/s:\n";
+	//TestAlgo(Norm);
 
-	std::cout << std::setprecision(2) << std::fixed << "Megalookups Multithreaded Random Positions/s:\n";
+	std::cout << "\nMegalooks Known Positions/s:\n";
+	TestAlgo(NormSquare);
+
+	std::cout << "\nMegalookups Multithreaded Random Positions/s:\n";
 	std::vector<Thread_Perf_t> mt_res;
-	RunMultithreaded(Explode_t);
-	RunMultithreaded(Switch_t);
-	RunMultithreaded(Dumb7_t);
-	RunMultithreaded(Kogge_t);
-	RunMultithreaded(Rotate_t);
-	RunMultithreaded(QBB_t);
-	RunMultithreaded(Bob_t);
-	RunMultithreaded(Obstruct_t);
-	RunMultithreaded(ObstructNT_t);
-	RunMultithreaded(Arithm_t);
-	RunMultithreaded(ArithmNT_t);
-	RunMultithreaded(Hyperbola_t);
-	RunMultithreaded(HyperbolaNT_t);
-	RunMultithreaded(Sissy_t);
-	RunMultithreaded(HVar_t);
-	RunMultithreaded(Plain_t);
-	RunMultithreaded(Fancy_t);
-	RunMultithreaded(Pext_t);
-	RunMultithreaded(Hyper_t);
-	
+	TestAlgo(Multithreaded);
 	PrintPerf(mt_res);
-	
-	//std::cout << std::setprecision(2) << std::fixed << "\nMegalooks Simulated Game Single Thread/ s:\n";
-	//RunEmulated(Explode_t);
-	//RunEmulated(Switch_t);
-	//RunEmulated(Dumb7_t);
-	//RunEmulated(Kogge_t);
-	//RunEmulated(Rotate_t);
-	//RunEmulated(QBB_t);
-	//RunEmulated(Bob_t);
-	//RunEmulated(Obstruct_t);
-	//RunEmulated(ObstructNT_t);
-	//RunEmulated(Arithm_t);
-	//RunEmulated(ArithmNT_t);
-	//RunEmulated(Hyperbola_t);
-	//RunEmulated(HyperbolaNT_t);
-	//RunEmulated(Sissy_t);
-	//RunEmulated(HVar_t);
-	//RunEmulated(Plain_t);
-	//RunEmulated(Fancy_t);
-	//RunEmulated(Pext_t);
-	//RunEmulated(Hyper_t);
+
+	//TestAlgo(Emulated);
 }
 
 int main() {
