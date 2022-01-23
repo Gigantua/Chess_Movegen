@@ -7,32 +7,23 @@
 
 namespace Chess_Lookup::SlideArithmInline
 {
-	#define FileOf(S) ((S) & 7)
+	template<uint64_t bb>
+	static constexpr uint64_t mask_shift(int ranks) {
+		return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
+	}
 	template<int dir>
-	static constexpr uint64_t dirMask(int sq)
-	{
-		uint64_t C;
-		if constexpr (dir == 0) {
-			uint64_t C = 0xFFull;
-			return (C << (sq & 56)) & ~(1ull << sq);
-		}
-		else if constexpr (dir == 1) {
-			uint64_t C = 0x0101010101010101ull;
-			return (C << FileOf(sq)) & ~(1ull << sq);
-		}
-		else if constexpr (dir == 2) {
-			uint64_t C = 0x8040201008040201ull;
-			int d = 8 * FileOf(sq) - (sq & 56);
-			int n = -d & (d >> 31);
-			int s = d & (-d >> 31);
-			return ((C >> s) << n) & ~(1ull << sq);
-		}
-		else if constexpr (dir == 3) {
-			uint64_t C = 0x0102040810204080ull;
-			int d = 56 - 8 * FileOf(sq) - (sq & 56);
-			int n = -d & (d >> 31);
-			int s = d & (-d >> 31);
-			return ((C >> s) << n) & ~(1ull << sq);
+	static constexpr uint64_t dirMask(int square) {
+		int rank = square >> 3;
+		int file = square & 7;
+
+		if constexpr (dir == 0)
+			return 0xFFull << (square & 56); //HORIZONTAL
+		else if constexpr (dir == 1)
+			return 0x0101010101010101ull << (square & 7); //VERTICAL
+		else if constexpr (dir == 2)
+			return mask_shift<0x8040201008040201ull>(file - rank); //Diagonal
+		else {
+			return mask_shift<0x0102040810204080ull>(7 - file - rank); //Antidiagonal
 		}
 	}
 	constexpr auto Size = 0;
@@ -41,7 +32,7 @@ namespace Chess_Lookup::SlideArithmInline
 #ifdef __AVX2__
 		return _bzhi_u64(src, idx);
 #endif
-		return src & (1 << idx) - 1;
+		return src & (1ull << idx) - 1;
 	}
 
 	static uint64_t blsmsk(uint64_t x) {
@@ -68,10 +59,11 @@ namespace Chess_Lookup::SlideArithmInline
 
 	static const inline uint64_t Queen(uint32_t s, uint64_t occ)
 	{
-		const uint64_t h = dirMask<0>(s);
-		const uint64_t v = dirMask<1>(s);
-		const uint64_t d1 = dirMask<2>(s);
-		const uint64_t d2 = dirMask<3>(s);
+		const uint64_t p = 1ull << s;
+		const uint64_t h =  dirMask<0>(s) ^ p;
+		const uint64_t v =  dirMask<1>(s) ^ p;
+		const uint64_t d1 = dirMask<2>(s) ^ p;
+		const uint64_t d2 = dirMask<3>(s) ^ p;
 		return slide_arithmetic(s, h & occ) & h
 			 ^ slide_arithmetic(s, v & occ) & v
 			 ^ slide_arithmetic(s, d1 & occ) & d1

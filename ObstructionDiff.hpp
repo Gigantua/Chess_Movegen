@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <array>
+#include <bit>
 
 namespace Chess_Lookup::ObstructionDiff {
     #define FileOf(S) ((S) & 7)
@@ -84,10 +85,10 @@ namespace Chess_Lookup::ObstructionDiff {
     static constexpr uint64_t line_attack(int sq, uint64_t occ, int dir)
     {
         const lineEx& line = lines[4 * sq + dir];
-        uint64_t lower = line.lower & occ;
+        uint64_t lower = (line.lower & occ) | 1;
         uint64_t upper = line.upper & occ;
-        uint64_t msb = (1ull << 63ull) >> std::countl_zero(lower | 1);  //Extract Highest Set Isolated Bit
-        uint64_t lsb = upper & -upper;                                  //Extract Lowest Set Isolated Bit
+        uint64_t msb = (1ull << 63ull) >> std::countl_zero(lower);  //Extract Highest Set Isolated Bit
+        uint64_t lsb = upper & -upper;                              //Extract Lowest Set Isolated Bit
         uint64_t oDif = lsb * 2 - msb;
         return line.uni & oDif;
     }

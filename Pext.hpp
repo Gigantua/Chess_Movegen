@@ -6913,6 +6913,11 @@ namespace Chess_Lookup {
 				return AttackPtr[_pext_u64(blocker, Mask)];
 			}
 		}
+
+		constexpr uint64_t Atk_emulated(const uint64_t blocker) const
+		{
+			return AttackPtr[_pext_u64_emulated(blocker, Mask)];
+		}
 	};
 	static const SliderPext_t Pext_RookAttacks[64] = {
 		SliderPext_t(RookOffset_Pext[0], rmask[0]),
@@ -7194,6 +7199,10 @@ namespace Chess_Lookup {
 			return Pext_RookAttacks[square][occupy];
 		}
 
+		static constexpr uint64_t Rook_Emulated(uint64_t square, uint64_t occupy) {
+			return Pext_RookAttacks[square].Atk_emulated(occupy);
+		}
+
 		static constexpr uint64_t Rook_Xray(uint64_t square, uint64_t occupy) {
 			return Pext_RookAttacks_Xray[square][occupy];
 		}
@@ -7201,9 +7210,16 @@ namespace Chess_Lookup {
 		static constexpr uint64_t Bishop(uint64_t square, uint64_t occupy) {
 			return Pext_BishopAttacks[square][occupy];
 		}
+		static constexpr uint64_t Bishop_Emulated(uint64_t square, uint64_t occupy) {
+			return Pext_BishopAttacks[square].Atk_emulated(occupy);
+		}
 
 		static constexpr uint64_t Bishop_Xray(uint64_t square, uint64_t occupy) {
 			return Pext_BishopAttacks_Xray[square][occupy];
+		}
+
+		static constexpr uint64_t Queen_Emulated(uint64_t square, uint64_t occupy) {
+			return Rook_Emulated(square, occupy) | Bishop_Emulated(square, occupy);
 		}
 
 		static constexpr uint64_t Queen(uint64_t square, uint64_t occupy) {
@@ -7213,5 +7229,22 @@ namespace Chess_Lookup {
 		static constexpr uint64_t Queen_Xray(uint64_t square, uint64_t occupy) {
 			return Rook_Xray(square, occupy) | Bishop_Xray(square, occupy);
 		}
+
+		//2200Mlu/s
+		template<int square>
+		static constexpr uint64_t Rook(uint64_t occupy) {
+			return (SliderPext + RookOffset_Pext[square])[_pext_u64(occupy, rmask[square])];
+		}
+
+		template<int square>
+		static constexpr uint64_t Bishop(uint64_t occupy) {
+			return (SliderPext + BishopOffset_Pext[square])[_pext_u64(occupy, bmask[square])];
+		}
+
+		template<int square>
+		static constexpr uint64_t Queen(uint64_t occupy) {
+			return Rook<square>(occupy) | Bishop<square>(occupy);
+		}
+
 	};
 }

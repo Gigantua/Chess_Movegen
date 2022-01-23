@@ -1,6 +1,6 @@
 CC=clang++
-CFLAGS=-flto -O3 -march=native -funroll-loops -std=c++20 -pthread Main.cpp
-
+CFLAGS= -O3 -mllvm -inline-threshold=16000 -march=native -funroll-loops -std=c++20 -pthread Main.cpp
+# -flto
 default: all
 
 all: Main.cpp

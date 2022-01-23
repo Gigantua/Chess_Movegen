@@ -1,4 +1,4 @@
-//(c) Daniel Inführ 2021
+//(c) Daniel Inführ 2022
 //for questions email to daniel.infuehr@live.de
 //Created with a cube delta representation of all pext configurations during makemove
 
@@ -8,7 +8,7 @@
 #include <string.h>
 
 #ifdef _MSC_VER
-#define Inlined_ __forceinline static constexpr
+#define Inlined_ static constexpr
 #elif defined(__GNUC__)
 #define Inlined_ __attribute__((always_inline)) static constexpr
 #else
@@ -616,6 +616,24 @@ namespace Chess_Lookup {
 
 		static constexpr uint64_t Queen(int sq, uint64_t occ) {
 			return Rook(sq) | Bishop(sq);
+		}
+
+
+		template<int sq>
+		static constexpr uint64_t Rook() {
+			constexpr auto rMoves = RookMoves[sq];
+			return rMoves[cfgR[sq]];
+		}
+
+		template<int sq>
+		static constexpr uint64_t Bishop() {
+			constexpr auto bMoves = BishopMoves[sq];
+			return bMoves[cfgB[sq]];
+		}
+
+		template<int sq>
+		static constexpr uint64_t Queen(uint64_t occ) {
+			return Rook<sq>() | Bishop<sq>();
 		}
 
 		static inline void Prepare(uint64_t occ) {

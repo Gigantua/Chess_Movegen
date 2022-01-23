@@ -6,31 +6,38 @@
 #include <type_traits>
 
 namespace Chess_Lookup::HyperbolaQscInline {
-	#define FileOf(S) ((S) & 7)
+	template<uint64_t bb>
+	static constexpr uint64_t mask_shift(int ranks) {
+		return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
+	}
 	template<int dir>
-	static constexpr uint64_t dirMask(int sq)
-	{
-		if constexpr (dir == 0) {
-			uint64_t C = 0xFFull;
-			return (C << (sq & 56)) & ~(1ull << sq);
+	static constexpr uint64_t dirMask(int square) {
+		int rank = square >> 3;
+		int file = square & 7;
+
+		if constexpr (dir == 0)
+			return 0xFFull << (square & 56); //HORIZONTAL
+		else if constexpr (dir == 1)
+			return 0x0101010101010101ull << (square & 7); //VERTICAL
+		else if constexpr (dir == 2)
+			return mask_shift<0x8040201008040201ull>(file - rank); //Diagonal
+		else {
+			return mask_shift<0x0102040810204080ull>(7 - file - rank); //Antidiagonal
 		}
-		else if constexpr (dir == 1) {
-			uint64_t C = 0x0101010101010101ull;
-			return (C << FileOf(sq)) & ~(1ull << sq);
-		}
-		else if constexpr (dir == 2) {
-			uint64_t C = 0x8040201008040201ull;
-			int d = 8 * FileOf(sq) - (sq & 56);
-			int n = -d & (d >> 31);
-			int s = d & (-d >> 31);
-			return ((C >> s) << n) & ~(1ull << sq);
-		}
-		else if constexpr (dir == 3) {
-			uint64_t C = 0x0102040810204080ull;
-			int d = 56 - 8 * FileOf(sq) - (sq & 56);
-			int n = -d & (d >> 31);
-			int s = d & (-d >> 31);
-			return ((C >> s) << n) & ~(1ull << sq);
+	}
+	template<int dir, int square>
+	static consteval uint64_t dirMask() {
+		int rank = square >> 3;
+		int file = square & 7;
+
+		if constexpr (dir == 0)
+			return 0xFFull << (square & 56); //HORIZONTAL
+		else if constexpr (dir == 1)
+			return 0x0101010101010101ull << (square & 7); //VERTICAL
+		else if constexpr (dir == 2)
+			return mask_shift<0x8040201008040201ull>(file - rank); //Diagonal
+		else {
+			return mask_shift<0x0102040810204080ull>(7 - file - rank); //Antidiagonal
 		}
 	}
 
@@ -64,6 +71,29 @@ namespace Chess_Lookup::HyperbolaQscInline {
 	static constexpr uint64_t ShiftLeft(uint64_t b) { return (b << 1) & 0xfefefefefefefefeull; }
 	static constexpr uint64_t ShiftRight(uint64_t b) { return (b >> 1) & 0x7f7f7f7f7f7f7f7full; }
 
+	
+	template<int sq>
+	static constexpr uint64_t horizontal_atkL(uint64_t notOcc) {
+		uint64_t sqMsk = 1ull << sq;
+		notOcc &= 0xfefefefefefefefeull;
+		sqMsk |= notOcc & (sqMsk << 1);
+		notOcc &= (notOcc << 1);
+		sqMsk |= notOcc & (sqMsk << 2);
+		notOcc &= (notOcc << 2);
+		return ShiftLeft(sqMsk | notOcc & (sqMsk << 4));
+	}
+
+	template<int sq>
+	static constexpr uint64_t horizontal_atkR(uint64_t notOcc) {
+		uint64_t sqMsk = 1ull << sq;
+		notOcc &= 0x7f7f7f7f7f7f7f7full;
+		sqMsk |= notOcc & (sqMsk >> 1);
+		notOcc &= (notOcc >> 1);
+		sqMsk |= notOcc & (sqMsk >> 2);
+		notOcc &= (notOcc >> 2);
+		return ShiftRight(sqMsk | notOcc & (sqMsk >> 4));
+	}
+
 	static constexpr uint64_t horizontal_atkL(uint64_t notOcc, uint64_t sqMsk) {
 		notOcc &= 0xfefefefefefefefeull;
 		sqMsk |= notOcc & (sqMsk << 1);
@@ -72,6 +102,7 @@ namespace Chess_Lookup::HyperbolaQscInline {
 		notOcc &= (notOcc << 2);
 		return ShiftLeft(sqMsk | notOcc & (sqMsk << 4));
 	}
+
 	static constexpr uint64_t horizontal_atkR(uint64_t notOcc, uint64_t sqMsk) {
 		notOcc &= 0x7f7f7f7f7f7f7f7full;
 		sqMsk |= notOcc & (sqMsk >> 1);
@@ -82,15 +113,15 @@ namespace Chess_Lookup::HyperbolaQscInline {
 	}
 
 	static constexpr uint64_t vertical_attack(uint64_t occ, uint32_t sq) {
-		return attack(occ, sq, dirMask<1>(sq));
+		return attack(occ, sq, dirMask<1>(sq) ^ (1ull << sq));
 	}
 
 	static constexpr uint64_t diagonal_attack(uint64_t occ, uint32_t sq) {
-		return attack(occ, sq, dirMask<2>(sq));
+		return attack(occ, sq, dirMask<2>(sq) ^ (1ull << sq));
 	}
 
 	static constexpr uint64_t antidiagonal_attack(uint64_t occ, uint32_t sq) {
-		return attack(occ, sq, dirMask<3>(sq));
+		return attack(occ, sq, dirMask<3>(sq) ^ (1ull << sq));
 	}
 
 	static constexpr uint64_t bishop_attack(int sq, uint64_t occ) {
@@ -103,5 +134,36 @@ namespace Chess_Lookup::HyperbolaQscInline {
 
 	static constexpr uint64_t Queen(int sq, uint64_t occ) {
 		return bishop_attack(sq, occ) | rook_attack(sq, occ);
+	}
+
+
+	template<uint32_t sq>
+	static constexpr uint64_t vertical_attack(uint64_t occ) {
+		return attack(occ, sq, dirMask<1, sq>() ^ (1ull << sq));
+	}
+
+	template<uint32_t sq>
+	static constexpr uint64_t diagonal_attack(uint64_t occ) {
+		return attack(occ, sq, dirMask<2, sq>() ^ (1ull << sq));
+	}
+
+	template<uint32_t sq>
+	static constexpr uint64_t antidiagonal_attack(uint64_t occ) {
+		return attack(occ, sq, dirMask<3, sq>() ^ (1ull << sq));
+	}
+
+	template<uint32_t sq>
+	static constexpr uint64_t bishop_attack(uint64_t occ) {
+		return diagonal_attack<sq>(occ) | antidiagonal_attack<sq>(occ);
+	}
+
+	template<uint32_t sq>
+	static constexpr uint64_t rook_attack(uint64_t occ) {
+		return vertical_attack<sq>(occ) | horizontal_atkL<sq>(~occ) | horizontal_atkR<sq>(~occ);
+	}
+
+	template<uint32_t sq>
+	static constexpr uint64_t Queen(uint64_t occ) {
+		return bishop_attack<sq>(occ) | rook_attack<sq>(occ);
 	}
 }

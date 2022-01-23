@@ -3157,4 +3157,23 @@ namespace Chess_Lookup::Var {
         return GetRookAttacks(s, occ) | GetBishopAttacks(s, occ);
     }
 
+
+
+    template<int sq>
+    static constexpr uint64_t GetRookAttacks(uint64_t occ) {
+        constexpr Magic m = r_magics[sq];
+        return m.attacks[((occ & m.inner_mask) * m.magic_num) >> m.shift];
+    }
+
+    template<int sq>
+    static constexpr uint64_t GetBishopAttacks(uint64_t occ) {
+        constexpr Magic m = b_magics[sq];
+        return m.attacks[((occ & m.inner_mask) * m.magic_num) >> m.shift];
+    }
+
+    template<int sq>
+    static constexpr uint64_t Queen(uint64_t occ) {
+        return GetRookAttacks<sq>(occ) | GetBishopAttacks<sq>(occ);
+    }
+
 }
