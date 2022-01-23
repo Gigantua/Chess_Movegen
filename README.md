@@ -5,18 +5,28 @@ Prints which operation needs to exist in hardware for maximum performance
 
 ## Currently implements:
 - Pext Lookup
+- Emulated Pext Lookup
+- Kogge Stone
+- Exploading Bitboards
+- Hyperbola Quintessence
 - Plain Hash
 - Veriable Shift Hash
 - Fancy Hash
 - Exploding Bitboards
 - Switch Lookup
 - Rotated Bitboard
-- Kogge Stone
 - QBB Algorithm
+- Leorik Algorithm
 - Bobs Lookup Method
 - Slider Arithmetic
+- Obstruction Difference
 - Xorshift Lookup
 - Hypercube Lookup
+
+# Special Modes
+Some of the above algorithms have 0kb lookup modes where values are calculated at runtime without any lookups at all.
+Some of the above algorithms have a templated position parameter to have a forceinlined version of these lookups available.   
+
 
 # Build
 - Linux: make
