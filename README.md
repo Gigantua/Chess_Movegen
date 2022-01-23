@@ -42,7 +42,6 @@ uint64_t attacks = Lookup::Queen(sq);
 ```
 # Example Result:
 ```
-AMD Ryzen 9 5950X 16-Core Processor
 Megalooks Simulated Game/s:
 AMD Ryzen 9 5950X 16-Core Processor
 
