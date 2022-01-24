@@ -10,10 +10,10 @@ namespace Chess_Lookup::LeorikIL
 {
     static constexpr uint64_t Size = 0;
 
-    const uint64_t HORIZONTAL = 0x00000000000000FFUL;
-    const uint64_t VERTICAL = 0x0101010101010101UL;
-    const uint64_t DIAGONAL = 0x8040201008040201UL;
-    const uint64_t ANTIDIAGONAL = 0x0102040810204080UL;
+    static constexpr uint64_t HORIZONTAL = 0x00000000000000FFUL;
+    static constexpr uint64_t VERTICAL = 0x0101010101010101UL;
+    static constexpr uint64_t DIAGONAL = 0x8040201008040201UL;
+    static constexpr uint64_t ANTIDIAGONAL = 0x0102040810204080UL;
 
     //identify the highest set bit and shift a mask so the bits below are set and the rest are zeroed
     static constexpr uint64_t MaskHigh(uint64_t bb) {
