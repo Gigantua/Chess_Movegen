@@ -82,7 +82,7 @@ static void PrintBrand() {
 #define QBB_	 (1)
 #define HVar_	 (1)
 #define Sissy_	 (1)
-#define Dumb7_	 (0)
+#define Dumb7_	 (1)
 #define Leorik_	 (1)
 #define LeorikNT_ (1)
 
@@ -204,8 +204,11 @@ static void ConstPrint(const char* name, uint64_t source[N])
 struct Switch_t {
 	static constexpr bool Supports_Template = true;
 
-	static inline constexpr std::string_view name = "Reference";
+	static inline constexpr std::string_view name = "Reference (Switch Lookup)";
 	static inline constexpr std::string_view sp_op = "none";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=78235&p=907362&hilit=espresso#p907362";
+
 	static void Prepare(uint64_t occ) {}
 	static constexpr uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Queen(sq, occ); }
 	template <int sq> static constexpr uint64_t Queen(uint64_t occ) { return Chess_Lookup::Lookup_Switch::Queen<sq>(occ); }
@@ -219,7 +222,9 @@ struct Switch_t {
 struct Dumb7_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Dumb7 Fill";
+	static inline constexpr std::string_view author = "";
 	static inline constexpr std::string_view sp_op = "none";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Dumb7Fill::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::Dumb7Fill::Size; }
 };
@@ -232,8 +237,10 @@ Dummy(Dumb7_t);
 #include "KoggeStone.hpp"
 struct Kogge_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "KoggeStone";
+	static inline constexpr std::string_view name = "Kogge-Stone";
+	static inline constexpr std::string_view author = "";
 	static inline constexpr std::string_view sp_op = "none";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::KoggeStone::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::KoggeStone::Size; }
 };
@@ -245,8 +252,11 @@ struct Kogge_t {
 #include "Boblookup.hpp"
 struct Bob_t {
 	static constexpr bool Supports_Template = true;
-	static inline constexpr std::string_view name = "BobMike";
+	static inline constexpr std::string_view name = "Classical Bob-Mike";
+	static inline constexpr std::string_view author = "Robert Hyatt and Michael Sherwin";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Classical_Approach";
 	static inline constexpr std::string_view sp_op = "countr_zero, countl_zero";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::BobLU::Queen(sq, occ); }
 	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::BobLU::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::BobLU::Size; }
@@ -260,7 +270,10 @@ struct Bob_t {
 	struct Leorik_t {
 		static constexpr bool Supports_Template = false;
 		static inline constexpr std::string_view name = "Leorik";
+		static inline constexpr std::string_view author = "Thomas Jahn (lithander)";
+		static inline constexpr std::string_view reference = "https://github.com/lithander/MinimalChessEngine";
 		static inline constexpr std::string_view sp_op = "countl_zero";
+	
 		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Leorik::Queen(sq, occ); }
 		static uint64_t Size() { return Chess_Lookup::Leorik::Size; }
 	};
@@ -272,8 +285,11 @@ struct Bob_t {
 #include "Leorik_IL.hpp"
 	struct LeorikNT_t {
 		static constexpr bool Supports_Template = false;
-		static inline constexpr std::string_view name = "Leorik Lookup";
+		static inline constexpr std::string_view name = "Leorik Inline";
+		static inline constexpr std::string_view author = "Thomas Jahn (lithander)";
+		static inline constexpr std::string_view reference = "https://github.com/lithander/MinimalChessEngine";
 		static inline constexpr std::string_view sp_op = "countl_zero";
+
 		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::LeorikIL::Queen(sq, occ); }
 		static uint64_t Size() { return Chess_Lookup::LeorikIL::Size; }
 	};
@@ -286,7 +302,10 @@ struct Bob_t {
 struct Hyper_t {
 	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "HyperCube";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79004&p=916723&hilit=hypercube#p916723";
 	static inline constexpr std::string_view sp_op = "none";
+
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Lookup_Hyper::Prepare(occ); }
 	static constexpr void Move(int from, int to) { Chess_Lookup::Lookup_Hyper::Move(from, to); }
 	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Lookup_Hyper::Move_Take(from, to); }
@@ -304,8 +323,10 @@ struct Hyper_t {
 #include "Pext.hpp"
 	struct Pext_t {
 		static constexpr bool Supports_Template = true;
-		static inline constexpr std::string_view name = "Pext  ";
+		static inline constexpr std::string_view name = "Pext constexpr";
+		static inline constexpr std::string_view author = "Zach Wegner and Daniel Inf\x81hr (dangi12012)";
 		static inline constexpr std::string_view sp_op = "pext_u64";
+
 		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen(sq, occ); }
 		template <int sq> static constexpr uint64_t Queen(uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen<sq>(occ); }
 		static uint64_t Size() { return Chess_Lookup::Lookup_Pext::Size; }
@@ -319,7 +340,9 @@ struct Hyper_t {
 struct PextEmu_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Pext Emulated";
+	static inline constexpr std::string_view author = "Zach Wegner and Daniel Inf\x81hr (dangi12012)"; //Daniel Inführ
 	static inline constexpr std::string_view sp_op = "none";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen_Emulated(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::Lookup_Pext::Size; }
 };
@@ -332,7 +355,9 @@ struct PextEmu_t {
 struct Plain_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Hash Plain";
+	static inline constexpr std::string_view author = "";
 	static inline constexpr std::string_view sp_op = "imul64";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Plain::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::Plain::Size; }
 };
@@ -345,7 +370,9 @@ Dummy(Plain_t);
 struct HVar_t {
 	static constexpr bool Supports_Template = true;
 	static inline constexpr std::string_view name = "Hash Variable";
+	static inline constexpr std::string_view author = "";
 	static inline constexpr std::string_view sp_op = "imul64";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Var::Queen(sq, occ); }
 	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::Var::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::Var::Size; }
@@ -360,7 +387,9 @@ Dummy(HVar_t);
 struct Fancy_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Hash Fancy";
+	static inline constexpr std::string_view author = "";
 	static inline constexpr std::string_view sp_op = "imul64";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Fancy::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::Fancy::Size; }
 };
@@ -372,8 +401,11 @@ Dummy(Fancy_t);
 #include "Exploading.hpp"
 struct Explode_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Exploading";
+	static inline constexpr std::string_view name = "Exploding Bitboards";
+	static inline constexpr std::string_view author = "Harald L\x81\xE1 \ben"; //Harald Lüßen
+	static inline constexpr std::string_view reference = "http://www.open-aurec.com/wbforum/viewtopic.php?f=4&t=4523&start=80";
 	static inline constexpr std::string_view sp_op = "imul64";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ExplodingBoard::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::ExplodingBoard::Size; }
 };
@@ -385,8 +417,11 @@ Dummy(Explode_t);
 #include "Hyperbola.hpp"
 struct Hyperbola_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Hyperbola Qsc";
+	static inline constexpr std::string_view name = "Hyperbola Quintessence";
+	static inline constexpr std::string_view author = "Ryan Mack";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Hyperbola_Quintessence";
 	static inline constexpr std::string_view sp_op = "bswap";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQsc::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::HyperbolaQsc::Size; }
 };
@@ -398,8 +433,11 @@ Dummy(Hyperbola_t);
 #include "Hyperbola_IL.hpp"
 struct HyperbolaNT_t {
 	static constexpr bool Supports_Template = true;
-	static inline constexpr std::string_view name = "Hyperb.Inline";
+	static inline constexpr std::string_view name = "Hyperbola Quintessence Inline";
+	static inline constexpr std::string_view author = "Ryan Mack";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Hyperbola_Quintessence";
 	static inline constexpr std::string_view sp_op = "bswap";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQscInline::Queen(sq, occ); }
 	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::HyperbolaQscInline::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::HyperbolaQscInline::Size; }
@@ -412,8 +450,11 @@ Dummy(HyperbolaNT_t);
 #include "Rotated.hpp"
 struct Rotate_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "RotatedBoard";
+	static inline constexpr std::string_view name = "Rotated Bitboards";
+	static inline constexpr std::string_view author = "Robert Hyatt";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Rotated_Bitboards";
 	static inline constexpr std::string_view sp_op = "none";
+
 	static inline void Prepare(uint64_t occ) { Chess_Lookup::Rotation::Prepare(occ); }
 	static constexpr void Move(int from, int to) { Chess_Lookup::Rotation::Move(from, to); }
 	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Rotation::Move_Take(from, to); }
@@ -429,8 +470,12 @@ Dummy(Rotate_t);
 #include "SlideArithm.hpp"
 struct Arithm_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "SlideArithm";
+	static inline constexpr std::string_view name = "Slide Arithmetic";
+	static inline constexpr std::string_view author = "Jakob Progsch and Daniel Infuehr";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=78693&p=914767&hilit=SlideArithm#p914767";
 	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
+
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SlideArithm::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::SlideArithm::Size; }
 };
@@ -442,8 +487,11 @@ Dummy(Arithm_t);
 #include "SlideArithm_IL.hpp"
 struct ArithmNT_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "SlideA Inline";
+	static inline constexpr std::string_view name = "Slide Arithmetic Inline";
+	static inline constexpr std::string_view author = "Jakob Progsch and Daniel Infuehr";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=78693&p=914767&hilit=SlideArithm#p914767";
 	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SlideArithmInline::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::SlideArithmInline::Size; }
 };
@@ -455,8 +503,11 @@ Dummy(ArithmNT_t);
 #include "ObstructionDiff.hpp"
 struct Obstruct_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Obstr. Diff";
+	static inline constexpr std::string_view name = "Obstruction Difference";
+	static inline constexpr std::string_view author = "Michael Hoffmann";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?t=29087";
 	static inline constexpr std::string_view sp_op = "countl_zero";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ObstructionDiff::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::ObstructionDiff::Size; }
 };
@@ -469,8 +520,11 @@ Dummy(Obstruct_t);
 #include "ObstructionDiff_IL.hpp"
 struct ObstructNT_t {
 	static constexpr bool Supports_Template = true;
-	static inline constexpr std::string_view name = "Obstr. Inline";
+	static inline constexpr std::string_view name = "Obstruction Difference Inline";
+	static inline constexpr std::string_view author = "Michael Hoffmann";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?t=29087";
 	static inline constexpr std::string_view sp_op = "countl_zero";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::ObstructionDiffInline::Queen(sq, occ); }
 	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::ObstructionDiffInline::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::ObstructionDiffInline::Size; }
@@ -483,8 +537,11 @@ Dummy(ObstructNT_t);
 #include "QBB.hpp"
 struct QBB_t {
 	static constexpr bool Supports_Template = true;
-	static inline constexpr std::string_view name = "QBB Algo";
+	static inline constexpr std::string_view name = "QBBEngine";
+	static inline constexpr std::string_view author = "Fabio Gobbato";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/QBBEngine";
 	static inline constexpr std::string_view sp_op = "countr_zero, countl_zero";
+	
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::QBB::Queen(sq, occ); }
 	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::QBB::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::QBB::Size; }
@@ -497,8 +554,11 @@ Dummy(QBB_t);
 #include "Sissy.hpp"
 struct Sissy_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "SISSY BB";
+	static inline constexpr std::string_view name = "SISSY Bitboards";
+	static inline constexpr std::string_view author = "Michael Sherwin";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=73083";
 	static inline constexpr std::string_view sp_op = "none";
+
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SISSY::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::SISSY::Size; }
 };
@@ -728,7 +788,11 @@ double Get_MLU_KnownSourceSquare()
 	auto is_tmpl = T::Supports_Template ? "yes" : " no";
 	auto t2 = std::chrono::high_resolution_clock::now();
 	double result = poscnt * 64000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-	std::cout << T::name << ": \t" << result << "MOps\t" << T::Size() / 1024 << " kB\t" << "Optimal perf: " << T::sp_op <<" templ: " << is_tmpl << "\n";
+	
+	printf("%-30s: ", T::name.data());
+	std::cout << result << "MOps\t" << T::Size() / 1024 << " kB\t" << "Optimal perf: " << T::sp_op <<" templ: " << is_tmpl;
+
+	printf("\t\t%s\n", T::author.data());
 	return result;
 }
 
