@@ -131,7 +131,7 @@ namespace Chess_Lookup::ObstructionDiffInline {
     template<int sq>
     static constexpr uint64_t Queen(uint64_t occ)
     {
-        return Bishop(sq, occ) | Rook(sq, occ);
+        return Bishop<sq>(occ) | Rook<sq>(occ);
     }
 
 

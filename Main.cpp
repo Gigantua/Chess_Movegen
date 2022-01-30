@@ -70,6 +70,7 @@ static void PrintBrand() {
 #define Plain_	 (1)
 #define Fancy_	 (1)
 #define Pext_	 (1)
+#define Kindergarten_ (1)
 #define PextEmu_ (1)
 #define Hyper_	 (1)
 #define Explode_ (1)
@@ -85,6 +86,8 @@ static void PrintBrand() {
 #define Dumb7_	 (1)
 #define Leorik_	 (1)
 #define LeorikNT_ (1)
+#define SBAMG_ (1)
+#define SBAMGNT_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -222,7 +225,8 @@ struct Switch_t {
 struct Dumb7_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Dumb7 Fill";
-	static inline constexpr std::string_view author = "";
+	static inline constexpr std::string_view author = "Gunnar Andersson";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Dumb7Fill";
 	static inline constexpr std::string_view sp_op = "none";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Dumb7Fill::Queen(sq, occ); }
@@ -238,7 +242,8 @@ Dummy(Dumb7_t);
 struct Kogge_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Kogge-Stone";
-	static inline constexpr std::string_view author = "";
+	static inline constexpr std::string_view author = "Peter M. Kogge, Harold S. Stone";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Kogge-Stone_Algorithm";
 	static inline constexpr std::string_view sp_op = "none";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::KoggeStone::Queen(sq, occ); }
@@ -324,7 +329,8 @@ struct Hyper_t {
 	struct Pext_t {
 		static constexpr bool Supports_Template = true;
 		static inline constexpr std::string_view name = "Pext constexpr";
-		static inline constexpr std::string_view author = "Zach Wegner and Daniel Inf\x81hr (dangi12012)";
+		static inline constexpr std::string_view author = "Zach Wegner";
+		static inline constexpr std::string_view reference = "https://www.chessprogramming.org/BMI2#PEXTBitboards";
 		static inline constexpr std::string_view sp_op = "pext_u64";
 
 		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen(sq, occ); }
@@ -340,7 +346,8 @@ struct Hyper_t {
 struct PextEmu_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Pext Emulated";
-	static inline constexpr std::string_view author = "Zach Wegner and Daniel Inf\x81hr (dangi12012)"; //Daniel Inführ
+	static inline constexpr std::string_view author = "Zach Wegner"; //Daniel Inführ
+	static inline constexpr std::string_view reference = "https://randombit.net/bitbashing/posts/haswell_bit_permutations.html";
 	static inline constexpr std::string_view sp_op = "none";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Pext::Queen_Emulated(sq, occ); }
@@ -354,8 +361,9 @@ struct PextEmu_t {
 #include "Hash_Plain.hpp"
 struct Plain_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Hash Plain";
-	static inline constexpr std::string_view author = "";
+	static inline constexpr std::string_view name = "Magic BB - Plain";
+	static inline constexpr std::string_view author = "Lasse Hansen";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Magic_Bitboards#Plain";
 	static inline constexpr std::string_view sp_op = "imul64";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Plain::Queen(sq, occ); }
@@ -369,8 +377,9 @@ Dummy(Plain_t);
 #include "Hash_Var.hpp"
 struct HVar_t {
 	static constexpr bool Supports_Template = true;
-	static inline constexpr std::string_view name = "Hash Variable";
-	static inline constexpr std::string_view author = "";
+	static inline constexpr std::string_view name = "Magic BB - Fancy variable shift";
+	static inline constexpr std::string_view author = "Pradu Kannan";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Magic_Bitboards#Fancy";
 	static inline constexpr std::string_view sp_op = "imul64";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Var::Queen(sq, occ); }
@@ -386,8 +395,9 @@ Dummy(HVar_t);
 #include "Hash_Fancy.hpp"
 struct Fancy_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Hash Fancy";
-	static inline constexpr std::string_view author = "";
+	static inline constexpr std::string_view name = "Black Magic BB - Fixed shift";
+	static inline constexpr std::string_view author = "Onno Garms and Volker Annuss";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Magic_Bitboards#Fixed_shift_Fancy";
 	static inline constexpr std::string_view sp_op = "imul64";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Fancy::Queen(sq, occ); }
@@ -402,7 +412,7 @@ Dummy(Fancy_t);
 struct Explode_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Exploding Bitboards";
-	static inline constexpr std::string_view author = "Harald L\x81\xE1 \ben"; //Harald Lüßen
+	static inline constexpr std::string_view author = "Harald L\x81\xE1 \ben\t"; //Harald Lüßen
 	static inline constexpr std::string_view reference = "http://www.open-aurec.com/wbforum/viewtopic.php?f=4&t=4523&start=80";
 	static inline constexpr std::string_view sp_op = "imul64";
 
@@ -413,15 +423,51 @@ struct Explode_t {
 Dummy(Explode_t);
 #endif
 
+#if SBAMG_
+#include "SBAMG.hpp"
+struct SBAMG_t {
+	static constexpr bool Supports_Template = true;
+	static inline constexpr std::string_view name = "SBAMG o^(o-3cbn)";
+	static inline constexpr std::string_view author = "Syed Fahad";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?t=59845";
+	static inline constexpr std::string_view sp_op = "countl_zero, bswap";
+
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SBAMG::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::SBAMG::Queen<sq>(occ); }
+	static uint64_t Size() { return Chess_Lookup::SBAMG::Size; }
+};
+#else 
+Dummy(SBAMG_t);
+#endif
+
+
+#if SBAMGNT_
+#include "SBAMG_IL.hpp"
+struct SBAMGNT_t {
+	static constexpr bool Supports_Template = true;
+	static inline constexpr std::string_view name = "SBAMG Inline";
+	static inline constexpr std::string_view author = "Syed Fahad and Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?t=59845";
+	static inline constexpr std::string_view sp_op = "countl_zero, bswap";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SBAMGInline::Queen(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::SBAMGInline::Queen<sq>(occ); }
+	static uint64_t Size() { return Chess_Lookup::SBAMGInline::Size; }
+};
+#else 
+Dummy(SBAMGNT_t);
+#endif
+
 #if HypQsc_
 #include "Hyperbola.hpp"
 struct Hyperbola_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Hyperbola Quintessence";
+	static inline constexpr std::string_view name = "Hyperbola Quintessence o^(o-2r)";
 	static inline constexpr std::string_view author = "Ryan Mack";
 	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Hyperbola_Quintessence";
 	static inline constexpr std::string_view sp_op = "bswap";
-
+	
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::HyperbolaQsc::Queen(sq, occ); }
 	static uint64_t Size() { return Chess_Lookup::HyperbolaQsc::Size; }
 };
@@ -471,7 +517,7 @@ Dummy(Rotate_t);
 struct Arithm_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Slide Arithmetic";
-	static inline constexpr std::string_view author = "Jakob Progsch and Daniel Infuehr";
+	static inline constexpr std::string_view author = "Jakob Progsch and Daniel Inf\x81hr";
 	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=78693&p=914767&hilit=SlideArithm#p914767";
 	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
 
@@ -483,12 +529,14 @@ struct Arithm_t {
 Dummy(Arithm_t);
 #endif
 
+
+
 #if Arithm_
 #include "SlideArithm_IL.hpp"
 struct ArithmNT_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Slide Arithmetic Inline";
-	static inline constexpr std::string_view author = "Jakob Progsch and Daniel Infuehr";
+	static inline constexpr std::string_view author = "Jakob Progsch and Daniel Inf\x81hr";
 	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=78693&p=914767&hilit=SlideArithm#p914767";
 	static inline constexpr std::string_view sp_op = "bzhi_u64, blsmsk_u64";
 
@@ -498,6 +546,23 @@ struct ArithmNT_t {
 #else 
 Dummy(ArithmNT_t);
 #endif
+
+#if Kindergarten_
+#include "Kindergarten.hpp"
+struct Kindergarten_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Kindergarten";
+	static inline constexpr std::string_view author = "Urban Koistinen";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Kindergarten_Bitboards";
+	static inline constexpr std::string_view sp_op = "imul64";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Kindergarten::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::Kindergarten::Size; }
+};
+#else 
+Dummy(Kindergarten_t);
+#endif
+
 
 #if Obstrd_
 #include "ObstructionDiff.hpp"
@@ -599,8 +664,11 @@ X(Obstruct_t);		 \
 X(ObstructNT_t);	 \
 X(Arithm_t);		 \
 X(ArithmNT_t);		 \
+X(SBAMG_t)			 \
+X(SBAMGNT_t)		 \
 X(Hyperbola_t);		 \
 X(HyperbolaNT_t)	 \
+X(Kindergarten_t)	 \
 X(Sissy_t);			 \
 X(HVar_t);			 \
 X(Plain_t);			 \
@@ -609,7 +677,6 @@ X(Pext_t);			 \
 X(Hyper_t);			 \
 
 #define IsCorrect(X) if constexpr (X::name != "dummy") {if (X::Queen(i, occ) != atk_ref) { std::cout << X::name <<"failed. Reference:\n"<<"Occupy: "<<occ<<"\n"<<_map(occ)<<"\nSolution:\n"<<_map(atk_ref) <<"\nError:\n"<<_map(X::Queen(i, occ)); return false; }}
-
 
 //Initialize and verify all algorithms
 bool VerifyInit() {
@@ -785,14 +852,16 @@ double Get_MLU_KnownSourceSquare()
 		}
 		
 	}
-	auto is_tmpl = T::Supports_Template ? "yes" : " no";
+	auto is_tmpl = T::Supports_Template ? "yes" : "no";
 	auto t2 = std::chrono::high_resolution_clock::now();
 	double result = poscnt * 64000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-	
-	printf("%-30s: ", T::name.data());
-	std::cout << result << "MOps\t" << T::Size() / 1024 << " kB\t" << "Optimal perf: " << T::sp_op <<" templ: " << is_tmpl;
+	auto perf = std::to_string(result);
+	auto table = std::to_string(T::Size() / 8);
+	table.append(7 - table.size(), ' ');
+	table += " [" + std::to_string(T::Size() / 1024) + "kb]";
 
-	printf("\t\t%s\n", T::author.data());
+	printf("%-35s%-30s%-20s%-25s%-10s%-45s%-50s\n", T::name.data(), perf.c_str(), table.c_str(), T::sp_op.data(), is_tmpl, T::author.data(), T::reference.data());
+	
 	return result;
 }
 
@@ -869,6 +938,7 @@ Thread_Perf_t Get_MLU_Threaded()
 						});
 				}
 				topt = local_opt;
+				topt = local_opt;
 			}));
 		}
 		//Join all threads
@@ -901,6 +971,7 @@ Thread_Perf_t Get_MLU_Threaded()
 
 void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 	std::cout << "\n\nSummary:\n";
+	printf("%-35s%-30s%-20s\n", "Name", "Performance [MQueens/s]", "Threads");
 
 	std::sort(mt_res.begin(), mt_res.end(), [](const Thread_Perf_t& a, const Thread_Perf_t& b) -> bool
 		{
@@ -909,12 +980,11 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 
 	for (auto& r : mt_res)
 	{
-		std::cout << std::get<0>(r) << ": \t"<<std::get<2>(r)<<"MOps \t"<<std::get<1>(r)<<"Threads\n";
+		auto perf = std::to_string(std::get<2>(r));
+		auto threads = std::to_string(std::get<1>(r));
+		printf("%-35s%-30s%-20s\n", std::get<0>(r).data(), perf.data(), threads.data());
 	}
 }
-
-
-
 
 																												  
 #define Norm(X) if constexpr (X::name != "dummy")		   { Get_MLU<X>(); }									  //Random pos, Random occupation, 1 Thread
@@ -922,13 +992,12 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 #define Multithreaded(X) if constexpr (X::name != "dummy") { mt_res.push_back(Get_MLU_Threaded<X>()); }			  //Random pos, Random occupation, N Threads
 #define Emulated(X) if constexpr (X::name != "dummy")	   { Get_MLU_EmulateGame<X>(); }						  //Random pos, Emulated game occ, 1 Thread
 
-
-
 void GetPerf() {
 	//std::cout << "Megalooks Random Positions/s:\n";
 	//TestAlgo(Norm);
 
 	std::cout << "\nMegalooks Known Positions/s:\n";
+	printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
 	TestAlgo(NormSquare);
 
 	std::cout << "\nMegalookups Multithreaded Random Positions/s:\n";
