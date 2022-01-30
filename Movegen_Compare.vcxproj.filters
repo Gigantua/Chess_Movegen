@@ -83,5 +83,14 @@
     <ClInclude Include="Leorik.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Kindergarten.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SBAMG.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SBAMG_IL.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

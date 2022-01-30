@@ -636,6 +636,9 @@ namespace Chess_Lookup {
 			return Rook<sq>() | Bishop<sq>();
 		}
 
+//#define TestBit(X) if ((1ull << X) & occ) { SetSquare(X);} else { cfgR[X] = 0; cfgB[X] = 0;}
+//#define TestByte(X) TestBit(X + 0);  TestBit(X + 1);  TestBit(X + 2);  TestBit(X + 3);  TestBit(X + 4);  TestBit(X + 5);  TestBit(X + 6);  TestBit(X + 7); 
+
 		static inline void Prepare(uint64_t occ) {
 			//May not be needed
 			memset(cfgR, 0, sizeof(cfgR));
@@ -645,6 +648,11 @@ namespace Chess_Lookup {
 				SetSquare(static_cast<int>(_tzcnt_u64(occ)));
 			}
 		}
+
+		//static inline void PrepareFast(uint64_t occ) {
+		//	TestByte(0); TestByte(8); TestByte(16); TestByte(24); 
+		//	TestByte(32); TestByte(40); TestByte(48); TestByte(56); 
+		//}
 
 		static constexpr void Move_Take(int from, int to) {
 			ClearSquare(from);
