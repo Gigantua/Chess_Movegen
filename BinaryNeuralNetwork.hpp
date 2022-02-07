@@ -1814,7 +1814,7 @@ namespace Chess_Lookup::BNNInternal {
 namespace Chess_Lookup::BNNInternal {
 
 #ifdef __AVX2__
-	//Extremely fast popcount: each byte that has a popcount smaller than 4 
+	//Extremely fast popcount + compare: Returns each byte where the a popcount was less than 4 
 	static inline __m256i popcount8x32_SmallerThan4(__m256i x) {
 		const __m256i nibble_popcnt = _mm256_setr_epi8(
 			0, 1, 1, 2, 1, 2, 2, 3,
@@ -1834,7 +1834,7 @@ namespace Chess_Lookup::BNNInternal {
 	}
 #endif
 
-	/* General popcount - but still very fast. Clang can do this vectorisation itself when having std::popcount in a loop.
+	/* General popcount - still very fast. Clang can do this vectorisation itself when having std::popcount in a loop.
 	*
 	static const Vec32uc m1(static_cast<uint8_t>(0x5555555555555555ull)); //binary: 0101...
 	static const Vec32uc m2(static_cast<uint8_t>(0x3333333333333333ull)); //binary: 00110011..
