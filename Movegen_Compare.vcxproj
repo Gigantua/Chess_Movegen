@@ -150,6 +150,7 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryNeuralNetwork.hpp" />
     <ClInclude Include="Boblookup.hpp" />
     <ClInclude Include="Dumb7Fill.hpp" />
     <ClInclude Include="Exploading.hpp" />
