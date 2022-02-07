@@ -88,6 +88,7 @@ static void PrintBrand() {
 #define LeorikNT_ (1)
 #define SBAMG_ (1)
 #define SBAMGNT_ (1)
+#define BinaryNetwork_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -459,6 +460,22 @@ struct SBAMGNT_t {
 Dummy(SBAMGNT_t);
 #endif
 
+#if BinaryNetwork_
+#include "BinaryNeuralNetwork.hpp"
+struct BinaryNetwork_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Binary Neural Network";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "Not released yet";
+	static inline constexpr std::string_view sp_op = "pdep_u64, AVX2";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::BNN::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::BNN::Size; }
+};
+#else 
+Dummy(BinaryNetwork_t);
+#endif
+
 #if HypQsc_
 #include "Hyperbola.hpp"
 struct Hyperbola_t {
@@ -650,6 +667,7 @@ static std::string _map(uint64_t value)
 
 
 #define TestAlgo(X)	 \
+X(BinaryNetwork_t);	 \
 X(Explode_t);		 \
 X(Switch_t);		 \
 X(PextEmu_t);		 \
