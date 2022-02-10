@@ -230,7 +230,7 @@ struct Loop_t {
 	static inline constexpr std::string_view name = "AVX Branchless Shift";
 	static inline constexpr std::string_view sp_op = "AVX2";
 	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
-	static inline constexpr std::string_view reference = "";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79005&start=60";
 
 	static inline uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::AVXShift::Queen(sq, occ); }
 	static inline uint64_t Size() { return Chess_Lookup::AVXShift::Size; }
@@ -484,7 +484,7 @@ struct BinaryNetwork_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Binary Neural Network";
 	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
-	static inline constexpr std::string_view reference = "Not released yet";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79332";
 	static inline constexpr std::string_view sp_op = "pdep_u64, AVX2";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::BNN::Queen(sq, occ); }
