@@ -1571,6 +1571,7 @@ namespace Chess_Lookup::BNN
 		return _pdep_u64(result, scatter);
 	}
 
+#ifdef __AVX2__
 	static uint64_t Vector32(int sq, uint64_t occ, uint64_t gather, uint64_t scatter, uint32_t count, const uint8_t* weights) {
 		const __m256i input = _mm256_set1_epi16(_pext_u64(occ, gather));
 		int result = 0; //_mm_prefetch(reinterpret_cast<const char*>(weights), _MM_HINT_NTA);
@@ -1611,6 +1612,7 @@ namespace Chess_Lookup::BNN
 
 		return _pdep_u64(result, scatter);
 	}
+#endif
 
 	static uint64_t Rook(int sq, uint64_t occ) {
 		const auto& info = Chess_Lookup::BNNInternal::RookMasks[sq];
