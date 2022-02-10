@@ -84,6 +84,7 @@ static void PrintBrand() {
 #define HVar_	 (1)
 #define Sissy_	 (1)
 #define Dumb7_	 (1)
+#define AVXShift_	 (1)
 #define Leorik_	 (1)
 #define LeorikNT_ (1)
 #define SBAMG_ (1)
@@ -220,6 +221,23 @@ struct Switch_t {
 	static constexpr uint64_t Bish_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Bishop_Xray(sq, occ); }
 	static constexpr uint64_t Size() { return Chess_Lookup::Lookup_Switch::Size; }
 };
+
+#if AVXShift_
+#include "AVXShift.hpp"
+struct Loop_t {
+	static constexpr bool Supports_Template = false;
+
+	static inline constexpr std::string_view name = "AVX Branchless Shift";
+	static inline constexpr std::string_view sp_op = "none";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "";
+
+	static inline uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::AVXShift::Queen(sq, occ); }
+	static inline uint64_t Size() { return Chess_Lookup::AVXShift::Size; }
+};
+#else 
+Dummy(Loop_t);
+#endif
 
 #if Dumb7_
 #include "Dumb7Fill.hpp"
@@ -362,7 +380,7 @@ struct PextEmu_t {
 #include "Hash_Plain.hpp"
 struct Plain_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Magic BB - Plain";
+	static inline constexpr std::string_view name = "Plain Magic BB";
 	static inline constexpr std::string_view author = "Lasse Hansen";
 	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Magic_Bitboards#Plain";
 	static inline constexpr std::string_view sp_op = "imul64";
@@ -378,7 +396,7 @@ Dummy(Plain_t);
 #include "Hash_Var.hpp"
 struct HVar_t {
 	static constexpr bool Supports_Template = true;
-	static inline constexpr std::string_view name = "Magic BB - Fancy variable shift";
+	static inline constexpr std::string_view name = "Fancy Magic BB - Variable shift";
 	static inline constexpr std::string_view author = "Pradu Kannan";
 	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Magic_Bitboards#Fancy";
 	static inline constexpr std::string_view sp_op = "imul64";
@@ -464,8 +482,8 @@ Dummy(SBAMGNT_t);
 #include "BinaryNeuralNetwork.hpp"
 struct BinaryNetwork_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Binary Neural Network (dangi12012)";
-	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view name = "Binary Neural Network";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
 	static inline constexpr std::string_view reference = "Not released yet";
 	static inline constexpr std::string_view sp_op = "pdep_u64, AVX2";
 
@@ -670,6 +688,7 @@ static std::string _map(uint64_t value)
 X(BinaryNetwork_t);	 \
 X(Explode_t);		 \
 X(Switch_t);		 \
+X(Loop_t);			 \
 X(PextEmu_t);		 \
 X(Dumb7_t);			 \
 X(Kogge_t);			 \
@@ -807,25 +826,43 @@ double Get_MLU()
 {
 	//Set seeds to be fair to every movegen
 	rx = 123456789, ry = 362436069, rz = 521288629;
+	std::vector<uint64_t> occs;
+	std::vector<uint8_t> squares;
+
+	for (int i = 0; i < poscnt; i++) {
+		occs.push_back(rand64() & rand64());
+
+		for (int r = 0; r < 12; r++) { 
+			squares.push_back(rand32() % 64);
+		}
+	}
 
 	auto t1 = std::chrono::high_resolution_clock::now();
+	uint64_t dontopt = 0;
 	for (int i = 0; i < poscnt; i++) {
-		uint64_t occ = rand64() & rand64();
-		
+		uint64_t occ = occs[i];
 		if constexpr (std::is_same<T, Hyper_t>()) {
 			Hyper_t::Prepare(occ);
 		}
 		if constexpr (std::is_same<T, Rotate_t>()) {
 			Rotate_t::Prepare(occ);
 		}
-
-		for (int r = 0; r < 64; r++) {
-			opt = T::Queen(r, occ);
+		for (int r = 0; r < 12; r++) { //12000.0
+			dontopt ^= T::Queen(squares[12 * i + r], occ);
 		}
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
-	double result = poscnt * 64000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-	std::cout << T::name <<": \t" << result << "MOps\t"<<T::Size() / 1024 << " kB\t" << "Optimal perf: "<<T::sp_op << "\n";
+
+	opt = dontopt;
+	auto is_tmpl = T::Supports_Template ? "yes" : "no";
+	double result = poscnt * 12000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+	auto perf = std::to_string(result);
+	auto table = std::to_string(T::Size() / 8);
+	table.append(7 - table.size(), ' ');
+	table += " [" + std::to_string(T::Size() / 1024) + "kb]";
+
+	printf("%-35s%-30s%-20s%-25s%-10s%-45s%-50s\n", T::name.data(), perf.c_str(), table.c_str(), T::sp_op.data(), is_tmpl, T::author.data(), T::reference.data());
+
 	return result;
 }
 
@@ -1011,12 +1048,13 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 #define Emulated(X) if constexpr (X::name != "dummy")	   { Get_MLU_EmulateGame<X>(); }						  //Random pos, Emulated game occ, 1 Thread
 
 void GetPerf() {
-	//std::cout << "Megalooks Random Positions/s:\n";
-	//TestAlgo(Norm);
+	//std::cout << "\nMillion Lookups/s Known Squares, Random Occupation/s:\n";
+	//printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
+	//TestAlgo(NormSquare);
 
-	std::cout << "\nMegalooks Known Positions/s:\n";
+	std::cout << "\nMillion Lookups/s Random Squares, Random Occupation/s:\n";
 	printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
-	TestAlgo(NormSquare);
+	TestAlgo(Norm);
 
 	std::cout << "\nMegalookups Multithreaded Random Positions/s:\n";
 	std::vector<Thread_Perf_t> mt_res;
