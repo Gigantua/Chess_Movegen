@@ -228,7 +228,7 @@ struct Loop_t {
 	static constexpr bool Supports_Template = false;
 
 	static inline constexpr std::string_view name = "AVX Branchless Shift";
-	static inline constexpr std::string_view sp_op = "none";
+	static inline constexpr std::string_view sp_op = "AVX2";
 	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
 	static inline constexpr std::string_view reference = "";
 
