@@ -65,12 +65,6 @@ namespace Chess_Lookup::Leorik
         return bb ^ (bb - 1);
     }
 
-    //sign of 'ranks' decides between left shift or right shift. Then convert signed ranks to a positiver number of bits to shift by. Each rank has 8 bits e.g. 1 << 3 == 8
-    static constexpr uint64_t VerticalShift(uint64_t bb, int ranks)
-    {
-        return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
-    }
-
     static constexpr uint64_t GenLine(uint64_t bbLine, uint64_t bbBlocker, uint64_t bbBelow)
     {
         //MaskLow sets all low bits up to and including the lowest blocker above orgin, the rest are zeroed out.
