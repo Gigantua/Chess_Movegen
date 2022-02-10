@@ -464,7 +464,7 @@ Dummy(SBAMGNT_t);
 #include "BinaryNeuralNetwork.hpp"
 struct BinaryNetwork_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "Binary Neural Network";
+	static inline constexpr std::string_view name = "Binary Neural Network (dangi12012)";
 	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
 	static inline constexpr std::string_view reference = "Not released yet";
 	static inline constexpr std::string_view sp_op = "pdep_u64, AVX2";
