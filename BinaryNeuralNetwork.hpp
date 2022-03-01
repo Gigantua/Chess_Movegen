@@ -1556,8 +1556,30 @@ namespace Chess_Lookup::BNN
 	constexpr uint64_t Size = sizeof(Chess_Lookup::BNNInternal::RookWeights) + sizeof(Chess_Lookup::BNNInternal::BishopWeights);
 
 
+	static uint64_t pdedp_u64_serial(uint64_t val, uint64_t mask) {
+		uint64_t res = 0;
+		for (uint64_t bb = 1; mask; bb += bb) {
+			if (val & bb)
+				res |= mask & -std::bit_cast<int64_t, uint64_t>(mask);
+			mask &= mask - 1;
+		}
+		return res;
+	}
+
+	static uint64_t _pext_u64_emulated(uint64_t val, uint64_t mask)
+	{
+		uint64_t res = 0;
+		for (uint64_t bb = 1; mask != 0; bb += bb) {
+			if (val & mask & (0ull - mask)) {
+				res |= bb;
+			}
+			mask &= (mask - 1);
+		}
+		return res;
+	}
+
 	static uint64_t Serial32(int sq, uint64_t occ, uint64_t gather, uint64_t scatter, uint32_t count, const uint8_t* weights) {
-		uint16_t input16 = (uint16_t)_pext_u64(occ, gather);
+		uint16_t input16 = (uint16_t)_pext_u64_emulated(occ, gather);
 		uint8_t* i8 = (uint8_t*)&input16;
 
 		uint64_t result = 0;
@@ -1570,7 +1592,7 @@ namespace Chess_Lookup::BNN
 			result |= (uint64_t)(std::popcount(bits) > 16) << bit;
 			weights += 32;
 		}
-		return _pdep_u64(result, scatter);
+		return pdedp_u64_serial(result, scatter);
 	}
 
 #ifdef __AVX2__
