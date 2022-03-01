@@ -1561,7 +1561,7 @@ namespace Chess_Lookup::BNN
 		uint8_t* i8 = (uint8_t*)&input16;
 
 		uint64_t result = 0;
-		for (int bit = 0; bit < count; bit++) {
+		for (unsigned int bit = 0; bit < count; bit++) {
 			uint32_t bits = 0;
 			for (int i = 0; i < 32; i++)
 			{
@@ -1575,11 +1575,11 @@ namespace Chess_Lookup::BNN
 
 #ifdef __AVX2__
 	static uint64_t Vector32(int sq, uint64_t occ, uint64_t gather, uint64_t scatter, uint32_t count, const uint8_t* weights) {
-		const __m256i input = _mm256_set1_epi16(_pext_u64(occ, gather));
+		const __m256i input = _mm256_set1_epi16((short)_pext_u64(occ, gather));
 		int result = 0; //_mm_prefetch(reinterpret_cast<const char*>(weights), _MM_HINT_NTA);
 
 		//Binary neural network: [count networks with this config] => 16bit x 32bit x 1 bit 
-		for (int i = 0; i < count; i++) {
+		for (unsigned int i = 0; i < count; i++) {
 			int R1 = _mm256_movemask_epi8(Chess_Lookup::BNNInternal::popcount8x32_SmallerThan4(_mm256_xor_si256(input, _mm256_load_si256(reinterpret_cast<const __m256i*>(weights + i * 32)))));
 
 			//64bit first layer reduction into single bit output
@@ -1590,7 +1590,7 @@ namespace Chess_Lookup::BNN
 	}
 
 	static uint64_t Vector32_Unrolled(int sq, uint64_t occ, uint64_t gather, uint64_t scatter, uint32_t count, const uint8_t* weights) {
-		const __m256i input = _mm256_set1_epi16(_pext_u64(occ, gather));
+		const __m256i input = _mm256_set1_epi16((short)_pext_u64(occ, gather));
 		uint32_t result = 0;
 
 		//One network infers one output bit - 14 Networks with this configuration: 16 x 32 x 1
