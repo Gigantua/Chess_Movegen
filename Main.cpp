@@ -48,6 +48,10 @@ public:
 };
 
 static void PrintBrand() {
+#if defined(__linux__) && (!defined(__x86_64__) && !defined(__i386__))
+	//Non x86/x64 Linux system
+	system("cat /proc/cpuinfo | grep model | grep name");
+#else
 	uint32_t brand[12]{};
 	for (int i = 0; i < 3; i++) 
 	{
@@ -58,6 +62,7 @@ static void PrintBrand() {
 		brand[4*i + 3] = d.EDX();
 	}
 	printf("%s\n", (char*)brand);
+#endif
 }
 
 
@@ -1064,6 +1069,8 @@ void GetPerf() {
 int main() {
 	VerifyInit();
 	PrintBrand();
+
+
 	GetPerf();
 
 	return 0;
