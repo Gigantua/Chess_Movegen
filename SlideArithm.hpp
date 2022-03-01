@@ -2,7 +2,7 @@
 #include <bit>
 #include <cstdint>
 #ifdef __AVX2__
-#include <immintrin.h>
+#	include <immintrin.h>
 #endif
 
 namespace Chess_Lookup::SlideArithm

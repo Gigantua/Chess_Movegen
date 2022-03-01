@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <bit>
 #include <array>
-#include <immintrin.h>
 
 namespace Chess_Lookup::BobLU {
 

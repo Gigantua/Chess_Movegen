@@ -5,7 +5,6 @@
 #pragma once
 #include <stdint.h>
 #include <type_traits> //just for is_constant_evaluated
-#include <immintrin.h>
 
 namespace Chess_Lookup {
 	static constexpr uint64_t SliderPext[] = {
