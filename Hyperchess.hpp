@@ -4,7 +4,6 @@
 
 #pragma once
 #include <stdint.h>
-#include <immintrin.h>
 #include <string.h>
 
 #ifdef _MSC_VER

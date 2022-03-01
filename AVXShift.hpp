@@ -6,7 +6,10 @@
 #pragma once
 #include <stdint.h>
 #include <algorithm>
-#include <immintrin.h>
+
+#ifdef __AVX2__
+#	include <immintrin.h>
+#endif
 
 namespace Chess_Lookup::AVXShift
 {
@@ -17,6 +20,7 @@ namespace Chess_Lookup::AVXShift
 
     static constexpr auto Size = 0; //Above will get inlined into code
 
+#ifdef __AVX2__
     struct Vec4I {
         __m256i ymm;
 
@@ -107,7 +111,7 @@ namespace Chess_Lookup::AVXShift
            //    | (uint64_t)(_mm_extract_epi64(temp, 1));
         }
     };
-
+#endif
 
     static constexpr uint64_t Bishop(int s, uint64_t o)
     {
@@ -129,11 +133,6 @@ namespace Chess_Lookup::AVXShift
         tmp = 1ull << s; while ((tmp & (o | BB_R8)) == 0) { att |= tmp <<= 8; }
         tmp = 1ull << s; while ((tmp & (o | BB_R1)) == 0) { att |= tmp >>= 8; }
         return att;
-    }
-
-    static inline uint64_t QueenDumb7() {
-        
-
     }
 
     static inline uint64_t Queen(const int s, uint64_t o)

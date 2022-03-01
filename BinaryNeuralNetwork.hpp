@@ -8,7 +8,9 @@
 
 #include <stdint.h>
 #include <bit>
-#include <immintrin.h>
+#ifdef __AVX2__
+#	include <immintrin.h>
+#endif
 
 namespace Chess_Lookup::BNNInternal {
 	struct Maskinfo {
