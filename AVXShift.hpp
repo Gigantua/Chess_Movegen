@@ -24,7 +24,8 @@ namespace Chess_Lookup::AVXShift
     struct Vec4I {
         __m256i ymm;
 
-        Vec4I(){ } //Empty Constructor
+        Vec4I()
+        { } //Empty Constructor
 
         Vec4I(__m256i&& value) : ymm(value)
         {

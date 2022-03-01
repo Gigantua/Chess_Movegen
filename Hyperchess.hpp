@@ -643,8 +643,8 @@ namespace Chess_Lookup {
 			memset(cfgR, 0, sizeof(cfgR));
 			memset(cfgB, 0, sizeof(cfgB));
 			
-			for (; occ; occ = _blsr_u64(occ)) {
-				SetSquare(static_cast<int>(_tzcnt_u64(occ)));
+			for (; occ; occ &= (occ - 1)) {
+				SetSquare(std::countr_zero(occ));
 			}
 		}
 
