@@ -25,15 +25,15 @@ namespace Chess_Lookup::SBAMG
         return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
     }
     template<int dir>
-    static constexpr uint64_t dirMask(int square) {
+    static constexpr uint64_t dirMask(unsigned int square) {
         int rank = square >> 3;
         int file = square & 7;
 
-        if constexpr (dir == 0)
+        if (dir == 0)
             return 0xFFull << (square & 56); //HORIZONTAL
-        else if constexpr (dir == 1)
+        else if (dir == 1)
             return 0x0101010101010101ull << (square & 7); //VERTICAL
-        else if constexpr (dir == 2)
+        else if (dir == 2)
             return mask_shift<0x8040201008040201ull>(file - rank); //Diagonal
         else {
             return mask_shift<0x0102040810204080ull>(7 - file - rank); //Antidiagonal

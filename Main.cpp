@@ -16,16 +16,9 @@
 #include <algorithm>
 #include <tuple>
 
-#ifndef CPUID_H
-#define CPUID_H
-
 #ifdef _WIN32
 #include <limits.h>
 #include <intrin.h>
-typedef unsigned __int32  uint32_t;
-
-#else
-#include <stdint.h>
 #endif
 
 class CPUID {
@@ -35,11 +28,17 @@ public:
 	explicit CPUID(unsigned i) {
 #ifdef _WIN32
 		__cpuid((int*)regs, (int)i);
-#else
+#elif defined(__x86_64__) || defined(__i386__)
 		asm volatile
 			("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
 				: "a" (i), "c" (0));
 		// ECX is set to zero for CPUID function 4
+#else
+		char* vals = (char*)regs;
+		*vals++ = 'C'; *vals++ = 'P'; *vals++ = 'U'; *vals++ = ':'; *vals++ = ' ';
+		*vals++ = 'U'; *vals++ = 'n'; *vals++ = 'k'; *vals++ = 'o'; *vals++ = 'w'; *vals++ = 'n'; *vals++ = ' ';
+		*vals++ = 'A'; *vals++ = 'R'; *vals++ = 'M'; //Just unknown really
+		*vals++ = '\0';
 #endif
 	}
 	const uint32_t& EAX() const { return regs[0]; }
@@ -47,8 +46,6 @@ public:
 	const uint32_t& ECX() const { return regs[2]; }
 	const uint32_t& EDX() const { return regs[3]; }
 };
-
-#endif // CPUID_H
 
 static void PrintBrand() {
 	uint32_t brand[12]{};
