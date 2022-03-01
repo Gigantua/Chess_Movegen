@@ -7237,7 +7237,7 @@ namespace Chess_Lookup {
 		template<int square>
 		static constexpr uint64_t Rook(uint64_t occupy) {
 #ifndef __AVX2__
-			return (SliderPext + RookOffset_Pext[square])[SliderPext_t::_pext_u64_emulated((occupy, rmask[square])];
+			return (SliderPext + RookOffset_Pext[square])[SliderPext_t::_pext_u64_emulated(occupy, rmask[square])];
 #else
 			return (SliderPext + RookOffset_Pext[square])[_pext_u64(occupy, rmask[square])];
 #endif
@@ -7246,7 +7246,7 @@ namespace Chess_Lookup {
 		template<int square>
 		static constexpr uint64_t Bishop(uint64_t occupy) {
 #ifndef __AVX2__
-			return (SliderPext + BishopOffset_Pext[square])[SliderPext_t::_pext_u64_emulated((occupy, bmask[square])];
+			return (SliderPext + BishopOffset_Pext[square])[SliderPext_t::_pext_u64_emulated(occupy, bmask[square])];
 #else
 			return (SliderPext + BishopOffset_Pext[square])[_pext_u64(occupy, bmask[square])];
 #endif
