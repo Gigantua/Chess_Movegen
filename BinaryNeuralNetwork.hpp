@@ -1560,7 +1560,7 @@ namespace Chess_Lookup::BNN
 		uint64_t res = 0;
 		for (uint64_t bb = 1; mask; bb += bb) {
 			if (val & bb)
-				res |= mask & -std::bit_cast<int64_t, uint64_t>(mask);
+				res |= mask & -mask;
 			mask &= mask - 1;
 		}
 		return res;
