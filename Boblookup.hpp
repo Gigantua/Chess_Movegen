@@ -81,6 +81,24 @@ namespace Chess_Lookup::BobLU {
 		return ray;
 	}
 	constexpr std::array<Rays, 64> ray = Initialize();
+	
+	constexpr std::array<uint64_t, 64> queens = []()
+	{
+		std::array<uint64_t, 64> q = {};
+		for (uint64_t i = 0; i < 64; i++)
+		{
+			Rays r = ray[i];
+			q[i] = r.rayNN |
+				   r.rayEE |
+				   r.raySS |
+				   r.rayWW |
+				   r.rayNW |
+				   r.rayNE |
+				   r.raySE |
+				   r.raySW;
+		}
+		return q;
+	}();
 
 	constexpr auto Size = sizeof(ray);
 
@@ -140,12 +158,34 @@ namespace Chess_Lookup::BobLU {
 	}
 
 	static constexpr uint64_t Queen(int sq, uint64_t occ) {
-		return Rook(sq, occ) | Bishop(sq, occ);
+		occ |= 0x8000000000000001;
+		uint64_t bb = (ray[std::countr_zero(ray[sq].rwsNW & occ)].rayNW
+			| ray[std::countr_zero(ray[sq].rwsNN & occ)].rayNN
+			| ray[std::countr_zero(ray[sq].rwsNE & occ)].rayNE
+			| ray[std::countr_zero(ray[sq].rwsEE & occ)].rayEE
+			| ray[63 - std::countl_zero(ray[sq].rwsSE & occ)].raySE
+			| ray[63 - std::countl_zero(ray[sq].rwsSS & occ)].raySS
+			| ray[63 - std::countl_zero(ray[sq].rwsSW & occ)].raySW
+			| ray[63 - std::countl_zero(ray[sq].rwsWW & occ)].rayWW)
+			^ queens[sq];
+
+		return bb;// Rook(sq, occ) | Bishop(sq, occ);
 	}
 
 	template<int sq>
 	static constexpr uint64_t Queen(uint64_t occ) {
-		return Rook<sq>(occ) | Bishop<sq>(occ);
+		occ |= 0x8000000000000001;
+		uint64_t bb = (ray[std::countr_zero(ray[sq].rwsNW & occ)].rayNW
+			| ray[std::countr_zero(ray[sq].rwsNN & occ)].rayNN
+			| ray[std::countr_zero(ray[sq].rwsNE & occ)].rayNE
+			| ray[std::countr_zero(ray[sq].rwsEE & occ)].rayEE
+			| ray[63 - std::countl_zero(ray[sq].rwsSE & occ)].raySE
+			| ray[63 - std::countl_zero(ray[sq].rwsSS & occ)].raySS
+			| ray[63 - std::countl_zero(ray[sq].rwsSW & occ)].raySW
+			| ray[63 - std::countl_zero(ray[sq].rwsWW & occ)].rayWW)
+			^ queens[sq];
+
+		return bb;//Rook(sq, occ) | Bishop(sq, occ);
 	}
 	
 }
