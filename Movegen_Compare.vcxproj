@@ -164,6 +164,7 @@
     <ClInclude Include="ObstructionDiff.hpp" />
     <ClInclude Include="ObstructionDiff_IL.hpp" />
     <ClInclude Include="QBB.hpp" />
+    <ClInclude Include="Bitrotation.hpp" />
     <ClInclude Include="Rotated.hpp" />
     <ClInclude Include="Hash_Plain.hpp" />
     <ClInclude Include="Pext.hpp" />
