@@ -92,6 +92,7 @@ static void PrintBrand() {
 #define SBAMG_ (1)
 #define SBAMGNT_ (1)
 #define BinaryNetwork_ (1)
+#define RotateBits_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -538,11 +539,11 @@ struct Rotate_t {
 	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Rotated_Bitboards";
 	static inline constexpr std::string_view sp_op = "none";
 
-	static inline void Prepare(uint64_t occ) { Chess_Lookup::Rotation::Prepare(occ); }
-	static constexpr void Move(int from, int to) { Chess_Lookup::Rotation::Move(from, to); }
-	static constexpr void Move_Take(int from, int to) { Chess_Lookup::Rotation::Move_Take(from, to); }
-	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Rotation::Queen(sq, occ); }
-	static uint64_t Size() { return Chess_Lookup::Rotation::Size; }
+	static inline void Prepare(uint64_t occ) { Chess_Lookup::RotatedBB::Prepare(occ); }
+	static constexpr void Move(int from, int to) { Chess_Lookup::RotatedBB::Move(from, to); }
+	static constexpr void Move_Take(int from, int to) { Chess_Lookup::RotatedBB::Move_Take(from, to); }
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::RotatedBB::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::RotatedBB::Size; }
 };
 #else 
 Dummy(Rotate_t);
@@ -668,6 +669,23 @@ struct Sissy_t {
 Dummy(Sissy_t);
 #endif
 
+#if Rotate_
+#include "Bitrotation.hpp"
+struct Bitrotate_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Bitrotation";
+	static inline constexpr std::string_view author = "TBD";
+	static inline constexpr std::string_view reference = "TBD";
+	static inline constexpr std::string_view sp_op = "ReverseBits";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Bitrotation::Queen(sq, occ); }
+
+	static uint64_t Size() { return Chess_Lookup::Bitrotation::Size; }
+};
+#else 
+Dummy(Bitrotate_t);
+#endif
+
 
 
 static std::string _map(uint64_t value)
@@ -687,6 +705,7 @@ static std::string _map(uint64_t value)
 
 
 #define TestAlgo(X)	 \
+X(Bitrotate_t);		 \
 X(BinaryNetwork_t);	 \
 X(Explode_t);		 \
 X(Switch_t);		 \
@@ -735,7 +754,7 @@ bool VerifyInit() {
 		   Chess_Lookup::Lookup_Hyper::Prepare(occ);
 		#endif
 		#if Rotate_
-		   Chess_Lookup::Rotation::Prepare(occ);
+		   Chess_Lookup::RotatedBB::Prepare(occ);
 		#endif
 
 		for (int i = 0; i < 64; i++) {
@@ -1065,6 +1084,12 @@ void GetPerf() {
 
 	//TestAlgo(Emulated);
 }
+
+constexpr std::array<int, 3> d = []()
+{
+	std::array<int, 3> val = { 1,2,3 };
+	return val;
+}();
 
 int main() {
 	VerifyInit();

@@ -10,7 +10,7 @@ as part of the board structure.
 #pragma once
 #include <stdint.h>
 
-namespace Chess_Lookup::Rotation 
+namespace Chess_Lookup::RotatedBB 
 {
 
     /*******************************************************************/
