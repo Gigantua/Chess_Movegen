@@ -41,6 +41,13 @@ bit_reverse(arg0)
 #pragma once
 #include <stdint.h>
 
+#define dir_HO(X) (0xFFull << (X & 56))
+#define dir_VE(X) (0x0101010101010101ull << (X & 7))
+#define dir_D1(X) (mask_shift<0x8040201008040201ull>((X & 7) - (X >> 3)))
+#define dir_D2(X) (mask_shift<0x0102040810204080ull>(7 - (X & 7) - (X >> 3)))
+#define GetLower(X) ((1ull << X) - 1)
+#define GetUpper(X) (0xFFFFFFFFFFFFFFFF << (X))
+
 namespace Chess_Lookup::Genetic8Ray
 {
 	constexpr uint64_t Size = 0;
@@ -49,13 +56,6 @@ namespace Chess_Lookup::Genetic8Ray
 	static constexpr uint64_t mask_shift(int ranks) {
 		return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
 	}
-
-	#define dir_HO(X) (0xFFull << (X & 56))
-	#define dir_VE(X) (0x0101010101010101ull << (X & 7))
-	#define dir_D1(X) (mask_shift<0x8040201008040201ull>((X & 7) - (X >> 3)))
-	#define dir_D2(X) (mask_shift<0x0102040810204080ull>(7 - (X & 7) - (X >> 3)))
-	#define GetLower(X) ((1ull << X) - 1)
-	#define GetUpper(X) (0xFFFFFFFFFFFFFFFF << (X))
 
 	template <typename T, T m, int k>
 	static constexpr T swapbits(T p) {
@@ -76,7 +76,6 @@ namespace Chess_Lookup::Genetic8Ray
 		n = (n >> 63) | (n << 1);
 		return n;
 	}
-
 
 	static constexpr uint64_t SolveLineUpper_HO(uint64_t occ, uint64_t mask)
 	{
@@ -131,3 +130,9 @@ namespace Chess_Lookup::Genetic8Ray
 
 }
 
+#undef dir_HO
+#undef dir_VE
+#undef dir_D1
+#undef dir_D2
+#undef GetLower
+#undef GetUpper
