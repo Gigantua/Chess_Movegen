@@ -154,6 +154,7 @@
     <ClInclude Include="Boblookup.hpp" />
     <ClInclude Include="Dumb7Fill.hpp" />
     <ClInclude Include="Exploading.hpp" />
+    <ClInclude Include="Genetic8Ray.hpp" />
     <ClInclude Include="Hash_Fancy.hpp" />
     <ClInclude Include="Hash_Var.hpp" />
     <ClInclude Include="AVXShift.hpp" />

@@ -93,6 +93,7 @@ static void PrintBrand() {
 #define SBAMGNT_ (1)
 #define BinaryNetwork_ (1)
 #define RotateBits_ (1)
+#define Genetic8Ray_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -206,7 +207,6 @@ static void ConstPrint(const char* name, uint64_t source[N])
 	std::cout << ss.str();
 }
 
-
 //Reference
 #include "Switch.hpp"
 struct Switch_t {
@@ -224,6 +224,23 @@ struct Switch_t {
 	static constexpr uint64_t Bish_Xray(int sq, uint64_t occ) { return Chess_Lookup::Lookup_Switch::Bishop_Xray(sq, occ); }
 	static constexpr uint64_t Size() { return Chess_Lookup::Lookup_Switch::Size; }
 };
+
+#if Genetic8Ray_
+#include "Genetic8Ray.hpp"
+struct Genetic8Ray_t {
+	static constexpr bool Supports_Template = false;
+
+	static inline constexpr std::string_view name = "Genetic 8 Ray";
+	static inline constexpr std::string_view sp_op = "bswap";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "Abstract C++ Syntax Tree Sifter (c) Daniel Infuehr";
+
+	static inline uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Genetic8Ray::Queen(sq, occ); }
+	static inline uint64_t Size() { return Chess_Lookup::Genetic8Ray::Size; }
+};
+#else 
+Dummy(Genetic8Ray_t);
+#endif
 
 #if AVXShift_
 #include "AVXShift.hpp"
@@ -674,8 +691,8 @@ Dummy(Sissy_t);
 struct Bitrotate_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Bitrotation";
-	static inline constexpr std::string_view author = "TBD";
-	static inline constexpr std::string_view reference = "TBD";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79078&start=20";
 	static inline constexpr std::string_view sp_op = "ReverseBits";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Bitrotation::Queen(sq, occ); }
@@ -705,6 +722,11 @@ static std::string _map(uint64_t value)
 
 
 #define TestAlgo(X)	 \
+X(SBAMG_t)			 \
+X(SBAMGNT_t)		 \
+X(Hyperbola_t);		 \
+X(HyperbolaNT_t)	 \
+X(Genetic8Ray_t)     \
 X(Bitrotate_t);		 \
 X(BinaryNetwork_t);	 \
 X(Explode_t);		 \
@@ -722,10 +744,6 @@ X(Obstruct_t);		 \
 X(ObstructNT_t);	 \
 X(Arithm_t);		 \
 X(ArithmNT_t);		 \
-X(SBAMG_t)			 \
-X(SBAMGNT_t)		 \
-X(Hyperbola_t);		 \
-X(HyperbolaNT_t)	 \
 X(Kindergarten_t)	 \
 X(Sissy_t);			 \
 X(HVar_t);			 \
@@ -1077,10 +1095,12 @@ void GetPerf() {
 	printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
 	TestAlgo(Norm);
 
-	std::cout << "\nMegalookups Multithreaded Random Positions/s:\n";
-	std::vector<Thread_Perf_t> mt_res;
-	TestAlgo(Multithreaded);
-	PrintPerf(mt_res);
+	std::cout << "\n\nPLEASE COPY PASTE ABOVE OUTPUT\n http://www.talkchess.com/forum3/posting.php?mode=reply&f=7&t=79005";
+
+	//std::cout << "\nMegalookups Multithreaded Random Positions/s:\n";
+	//std::vector<Thread_Perf_t> mt_res;
+	//TestAlgo(Multithreaded);
+	//PrintPerf(mt_res);
 
 	//TestAlgo(Emulated);
 }
