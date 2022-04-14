@@ -101,5 +101,8 @@
     <ClInclude Include="Bitrotation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Genetic8Ray.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
