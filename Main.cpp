@@ -1116,7 +1116,7 @@ void GetPerf() {
 	printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
 	TestAlgo(Norm);
 
-	std::cout << "\n\nPLEASE COPY PASTE ABOVE OUTPUT\n http://www.talkchess.com/forum3/posting.php?mode=reply&f=7&t=79005";
+	std::cout << "\n\nPLEASE COPY PASTE ABOVE OUTPUT and share here:\n http://www.talkchess.com/forum3/posting.php?mode=reply&f=7&t=79005";
 
 	//std::cout << "\nMegalookups Multithreaded Random Positions/s:\n";
 	//std::vector<Thread_Perf_t> mt_res;
