@@ -35,7 +35,7 @@ namespace Chess_Lookup::Bitrotation
         return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
     }
 
-//Update Daniel 19.04.2022. These Defines are SLOWER than the 4 functions below
+//Update Daniel 19.04.2022. These Defines are SLOWER than the 4 functions below (on MSVC)
 #	define dir_HO(X) (0xFFull << (X & 56))
 #	define dir_VE(X) (0x0101010101010101ull << (X & 7))
 #	define dir_D1(X) (mask_shift<0x8040201008040201ull>((X & 7) - (X >> 3)))
@@ -73,8 +73,9 @@ namespace Chess_Lookup::Bitrotation
 		return ((o - bit) ^ bit_reverse(bit_reverse(o) - bit_rev)) & mask;
 	}
 
+    //This is now a bitnative algorithm. (Supports passing SQ as a bitmask)
     static uint64_t Queen(int sq, uint64_t occ) {
-        uint64_t bit = 1ull << sq;
+        uint64_t bit = 1ull << sq; 
         uint64_t bit_rev = (1ull << (sq ^ 63));
         return	  attack(occ, mask_HO(bit), bit, bit_rev)
 				^ attack(occ, mask_VE(bit), bit, bit_rev)
