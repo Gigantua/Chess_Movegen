@@ -69,6 +69,7 @@ static void PrintBrand() {
 
 #define Kogge_	 (1)
 #define Bob_	 (1)
+#define BobAdvanced_ (1)
 #define Plain_	 (1)
 #define Fancy_	 (1)
 #define Pext_	 (1)
@@ -83,6 +84,7 @@ static void PrintBrand() {
 #define Obstrd_	 (1)
 #define ObstrdNT_ (1)
 #define QBB_	 (1)
+#define GeneticQBB_	 (1)
 #define HVar_	 (1)
 #define Sissy_	 (1)
 #define Dumb7_	 (1)
@@ -327,6 +329,22 @@ struct Bob_t {
 };
 #else 
 	Dummy(Bob_t);
+#endif
+
+#if BobAdvanced_
+#include "Boblookup_advanced.hpp"
+	struct BobAdvanced_t {
+		static constexpr bool Supports_Template = false;
+		static inline constexpr std::string_view name = "Advanced Bob-Mike";
+		static inline constexpr std::string_view author = "Michael Sherwin and Daniel Inf\x81hr";
+		static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79078&start=50#p924653";
+		static inline constexpr std::string_view sp_op = "countr_zero, countl_zero";
+
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::BobAdvanced::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::BobAdvanced::Size; }
+	};
+#else 
+	Dummy(BobAdvanced_);
 #endif
 
 #if Leorik_
@@ -690,6 +708,24 @@ struct QBB_t {
 Dummy(QBB_t);
 #endif
 
+
+#if GeneticQBB_
+#include "GeneticQBB.hpp"
+struct GeneticQBB_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "QBBEngine - Shifted Mask";
+	static inline constexpr std::string_view author = "Fabio Gobbato";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79005&start=90#p924623";
+	static inline constexpr std::string_view sp_op = "countr_zero, countl_zero";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::GeneticQBB::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::GeneticQBB::Size; }
+};
+#else 
+Dummy(GeneticQBB_t);
+#endif
+
+
 #if Sissy_
 #include "Sissy.hpp"
 struct Sissy_t {
@@ -757,7 +793,9 @@ X(Dumb7_t);			 \
 X(Kogge_t);			 \
 X(Rotate_t);		 \
 X(QBB_t);			 \
+X(GeneticQBB_t);     \
 X(Bob_t);			 \
+X(BobAdvanced_t);	 \
 X(Leorik_t);		 \
 X(LeorikNT_t);		 \
 X(Obstruct_t);		 \

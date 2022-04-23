@@ -1,11 +1,9 @@
 /*
  This sliding lookup implementation is based on QBBEngine by Fabio Gobbato
- Some parts of this source call gcc intrinsic functions. If you are not using gcc you need to
- change them with the functions of your compiler.
 */
 #pragma once
 #include <stdint.h>
-#include <type_traits>
+#include <bit>
 
 namespace Chess_Lookup::QBB
 {
