@@ -152,10 +152,12 @@
   <ItemGroup>
     <ClInclude Include="BinaryNeuralNetwork.hpp" />
     <ClInclude Include="Boblookup.hpp" />
+    <ClInclude Include="Boblookup_advanced.hpp" />
     <ClInclude Include="Dumb7Fill.hpp" />
     <ClInclude Include="Exploading.hpp" />
     <ClInclude Include="Genetic8Ray.hpp" />
     <ClInclude Include="GeneticObstructionDiff.hpp" />
+    <ClInclude Include="GeneticQBB.hpp" />
     <ClInclude Include="Hash_Fancy.hpp" />
     <ClInclude Include="Hash_Var.hpp" />
     <ClInclude Include="AVXShift.hpp" />

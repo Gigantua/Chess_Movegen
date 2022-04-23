@@ -34,9 +34,14 @@ namespace Chess_Lookup::SBAMGInline
         else if constexpr (dir == 1)
             return (0x0101010101010101ull << (square & 7)) ^ (1ull << square); //VERTICAL
         else if constexpr (dir == 2)
-            return (mask_shift<0x8040201008040201ull>(file - rank)) ^ (1ull << square); //Diagonal
-        else {
-            return (mask_shift<0x0102040810204080ull>(7 - file - rank)) ^ (1ull << square); //Antidiagonal
+        {
+            int d = 8 * (square & 7) - (square & 56);
+            return ((0x8040201008040201ull >> (d & (-d >> 31))) << (-d & (d >> 31))) ^ (1ull << square);
+        }
+        else
+        {
+            int d = 56 - 8 * (square & 7) - (square & 56);
+            return ((0x0102040810204080ull >> (d & (-d >> 31))) << (-d & (d >> 31))) ^ (1ull << square);
         }
     }
 

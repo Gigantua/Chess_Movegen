@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <array>
+#include <bit>
 
 namespace Chess_Lookup::GeneticObstructionDiff
 {
@@ -27,15 +28,47 @@ namespace Chess_Lookup::GeneticObstructionDiff
 #define GetUpper(S) (0xFFFFFFFFFFFFFFFF << (S))
 #define dir_HO(X) (0xFFull << (X & 56))
 #define dir_VE(X) (0x0101010101010101ull << (X & 7))
-#define dir_D1(X) (mask_shift<0x8040201008040201ull>((X & 7) - (X >> 3)))
-#define dir_D2(X) (mask_shift<0x0102040810204080ull>(7 - (X & 7) - (X >> 3)))
+#define dir_D1(X) (mask_shift(0x8040201008040201ull, (X & 7) - (X >> 3)))
+#define dir_D2(X) (mask_shift(0x0102040810204080ull, 7 - (X & 7) - (X >> 3)))
 
-    constexpr auto Size = 0; //0 kb version
-
-    template<uint64_t bb>
-    static constexpr uint64_t mask_shift(int ranks) {
-        return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
+    static constexpr uint64_t mask_shift(uint64_t bb, int ranks)
+    {
+        if (ranks > 0) return bb >> (ranks << 3);
+        else return bb << -(ranks << 3);
     }
+
+    struct Ray6
+    {
+        constexpr Ray6() = default;
+        constexpr Ray6(int sq) : lower(((1ull << sq) - 1)), upper((0xFFFFFFFFFFFFFFFE << sq)), ho(dir_HO(sq)), ve(dir_VE(sq)), d1(dir_D1(sq)), d2(dir_D2(sq))
+        {
+
+        }
+        uint64_t lower; uint64_t upper;
+        uint64_t ho;    uint64_t ve;
+        uint64_t d1;    uint64_t d2;
+    };
+
+    constexpr std::array<Ray6, 64> rays = []()
+    {
+        std::array<Ray6, 64> q = {};
+        for (int sq = 0; sq < 64; sq++)
+        {
+            q[sq] = Ray6(sq);
+        }
+        return q;
+    }();
+    constexpr auto Size = sizeof(rays);
+    constexpr std::array<uint64_t, 65> msbs = []() 
+    {
+        std::array<uint64_t, 65> q = {};
+        for (int sq = 0; sq < 64; sq++)
+        {
+            q[sq] = 0x8000000000000000ull >> sq;
+        }
+        q[64] = 0x8000000000000000ull >> 63;
+        return q;
+    }();
 
     static constexpr uint64_t line_attack(uint64_t lower, uint64_t upper, uint64_t mask)
     {
@@ -43,31 +76,33 @@ namespace Chess_Lookup::GeneticObstructionDiff
         return (mask & (upper ^ (upper - msb)));
     }
 
-    static constexpr uint64_t Bishop(int sq, uint64_t occ)
-    {
-        const uint64_t m = (1ull << sq); //Bitboard native candidate. (no more square)
-        const uint64_t lower = occ &  (m - 1);
-        const uint64_t upper = occ & ~(m - 1);
-        const uint64_t ho = dir_HO(sq) ^ m;
-        const uint64_t ve = dir_VE(sq) ^ m;
 
-        return line_attack(ho & lower, ho & upper, ho) | 
-               line_attack(ve & lower, ve & upper, ve);
-    }
-
+    //Daniel.infuehr@live.de
+    //Improvement 20.04.2022 - removal of square masks by smarter shift constant (implicit masking) and XOR instruction
+    //https://godbolt.org/z/a9K4x8919
     static constexpr uint64_t Rook(int sq, uint64_t occ)
     {
-        const uint64_t m = (1ull << sq);
-        const uint64_t lower = occ & (m - 1);
-        const uint64_t upper = occ & ~(m - 1);
-        const uint64_t ho = dir_D1(sq) ^ m;
-        const uint64_t ve = dir_D2(sq) ^ m;
+        const uint64_t lower = occ & rays[sq].lower;
+        const uint64_t upper = occ & rays[sq].upper;
+        const uint64_t ho = rays[sq].ho;
+        const uint64_t ve = rays[sq].ve;
 
-        return line_attack(ho & lower, ho & upper, ho) | 
+        return line_attack(ho & lower, ho & upper, ho) ^ //Removal of upper rook mask
                line_attack(ve & lower, ve & upper, ve);
     }
 
-    static constexpr uint64_t Queen(int sq, uint64_t occ)
+    static constexpr uint64_t Bishop(int sq, uint64_t occ)
+    {
+        const uint64_t lower = occ & rays[sq].lower;
+        const uint64_t upper = occ & rays[sq].upper;
+        const uint64_t ho = rays[sq].d1;
+        const uint64_t ve = rays[sq].d2;
+
+        return line_attack(ho & lower, ho & upper, ho) ^
+               line_attack(ve & lower, ve & upper, ve);
+    }
+
+    static  uint64_t Queen(int sq, uint64_t occ)
     {
         return Bishop(sq, occ) | Rook(sq, occ);
     }
@@ -83,7 +118,7 @@ namespace Chess_Lookup::GeneticObstructionDiff
         const uint64_t ve = dir_VE(sq) ^ m;
 
         return line_attack(ho & lower, ho & upper, ho) |
-            line_attack(ve & lower, ve & upper, ve);
+               line_attack(ve & lower, ve & upper, ve);
     }
 
     template<int sq>
@@ -96,7 +131,7 @@ namespace Chess_Lookup::GeneticObstructionDiff
         const uint64_t ve = dir_D2(sq) ^ m;
 
         return line_attack(ho & lower, ho & upper, ho) |
-            line_attack(ve & lower, ve & upper, ve);
+               line_attack(ve & lower, ve & upper, ve);
     }
 
     template<int sq>

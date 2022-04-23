@@ -46,7 +46,7 @@ bit_reverse(arg0)
 #define dir_D1(X) (mask_shift<0x8040201008040201ull>((X & 7) - (X >> 3)))
 #define dir_D2(X) (mask_shift<0x0102040810204080ull>(7 - (X & 7) - (X >> 3)))
 #define GetLower(X) ((1ull << X) - 1)
-#define GetUpper(X) (0xFFFFFFFFFFFFFFFF << (X))
+#define GetUpper(X) (0xFFFFFFFFFFFFFFFE << (X))
 
 namespace Chess_Lookup::Genetic8Ray
 {
@@ -101,10 +101,14 @@ namespace Chess_Lookup::Genetic8Ray
 		return (bit_reverse((bit_reverse(occ) - 1ull)) >> 1ull) & mask;
 	}
 
+	//This improvement is possible:
+	//(0xFFFFFFFFFFFFFFFF << (sq)) ^ (1ull << sq)
+	//(0xFFFFFFFFFFFFFFFE << (sq))
+
 	static constexpr uint64_t Rook(int sq, uint64_t occ)
 	{
-		const uint64_t lower =  GetLower(sq);
-		const uint64_t upper =  GetUpper(sq) ^ (1ull << sq);
+		const uint64_t lower = GetLower(sq);
+		const uint64_t upper = GetUpper(sq);
 		const uint64_t ho =	dir_HO(sq);
 		const uint64_t ve = dir_VE(sq);
 
@@ -115,7 +119,7 @@ namespace Chess_Lookup::Genetic8Ray
 	static constexpr uint64_t Bishop(int sq, uint64_t occ)
 	{
 		const uint64_t lower = GetLower(sq);
-		const uint64_t upper = GetUpper(sq) ^ (1ull << sq);
+		const uint64_t upper = GetUpper(sq);
 		const uint64_t d1 = dir_D1(sq);
 		const uint64_t d2 = dir_D2(sq);
 
