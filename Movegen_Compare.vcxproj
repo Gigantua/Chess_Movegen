@@ -157,6 +157,7 @@
     <ClInclude Include="Exploading.hpp" />
     <ClInclude Include="Genetic8Ray.hpp" />
     <ClInclude Include="GeneticObstructionDiff.hpp" />
+    <ClInclude Include="GeneticObstructionDiffV2.hpp" />
     <ClInclude Include="GeneticQBB.hpp" />
     <ClInclude Include="Hash_Fancy.hpp" />
     <ClInclude Include="Hash_Var.hpp" />

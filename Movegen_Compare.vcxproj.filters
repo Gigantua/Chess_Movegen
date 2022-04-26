@@ -113,5 +113,8 @@
     <ClInclude Include="GeneticQBB.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GeneticObstructionDiffV2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

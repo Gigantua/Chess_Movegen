@@ -5,7 +5,6 @@
 #include <functional>
 #include <cstdint>
 #include <random>
-#include <iostream>
 #include <chrono>
 #include <iomanip>
 #include <string_view>
@@ -97,6 +96,7 @@ static void PrintBrand() {
 #define RotateBits_ (1)
 #define Genetic8Ray_ (1)
 #define GeneticObstruction_ (1)
+#define GeneticObstructionV2_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -231,18 +231,33 @@ struct Switch_t {
 #if GeneticObstruction_
 #include "GeneticObstructionDiff.hpp"
 struct GeneticObstructionDiff_t {
-	static constexpr bool Supports_Template = true;
+	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Genetic Obstruction Difference";
 	static inline constexpr std::string_view author = "Daniel Inf\x81hr and Michael Hoffmann";
 	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79701";
 	static inline constexpr std::string_view sp_op = "countl_zero";
 
 	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::GeneticObstructionDiff::Queen(sq, occ); }
-	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::GeneticObstructionDiff::Queen<sq>(occ); }
 	static uint64_t Size() { return Chess_Lookup::GeneticObstructionDiff::Size; }
 };
 #else 
 Dummy(GeneticObstructionDiff_t);
+#endif
+
+#if GeneticObstructionV2_
+#include "GeneticObstructionDiffV2.hpp"
+struct GeneticObstructionDiffV2_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Genetic Obstruction Difference V2";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79701";
+	static inline constexpr std::string_view sp_op = "countl_zero";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::GeneticObstructionDiffV2::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::GeneticObstructionDiffV2::Size; }
+};
+#else 
+Dummy(GeneticObstructionDiffV2_t);
 #endif
 
 
@@ -801,6 +816,7 @@ X(LeorikNT_t);		 \
 X(Obstruct_t);		 \
 X(ObstructNT_t);	 \
 X(GeneticObstructionDiff_t) \
+X(GeneticObstructionDiffV2_t) \
 X(Arithm_t);		 \
 X(ArithmNT_t);		 \
 X(Kindergarten_t)	 \

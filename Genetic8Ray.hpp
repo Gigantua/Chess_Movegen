@@ -38,8 +38,13 @@ bit_reverse(arg0)
 (arg0 >> arg1)
 **/
 
+//20.04.2022 (0xFFFFFFFFFFFFFFFF << (sq)) ^ (1ull << sq) === (0xFFFFFFFFFFFFFFFE << (sq))
+//26.04.2022 improvement by merging upper and lower rays and looking up masks:
+//Genetic 8 Ray                      35.885446
+
 #pragma once
 #include <stdint.h>
+
 
 #define dir_HO(X) (0xFFull << (X & 56))
 #define dir_VE(X) (0x0101010101010101ull << (X & 7))
@@ -77,54 +82,62 @@ namespace Chess_Lookup::Genetic8Ray
 		return n;
 	}
 
-	static constexpr uint64_t SolveLineUpper_HO(uint64_t occ, uint64_t mask)
+	struct Ray8
 	{
-		occ &= mask;
-		return (occ ^ (occ - 1ull)) & mask;
+		constexpr Ray8() { }
+		constexpr Ray8(int sq)
+		{
+			const uint64_t lower = GetLower(sq);
+			const uint64_t upper = GetUpper(sq);
+			const uint64_t ho = dir_HO(sq);
+			const uint64_t ve = dir_VE(sq);
+			const uint64_t d1 = dir_D1(sq);
+			const uint64_t d2 = dir_D2(sq);
+
+			ho_up = ho & upper; ho_do = ho & lower;
+			ve_up = ve & upper; ve_do = ve & lower;
+			d1_up = d1 & upper; d1_do = d1 & lower;
+			d2_up = d2 & upper; d2_do = d2 & lower;
+		}
+
+		uint64_t ho_up, ho_do;
+		uint64_t ve_up, ve_do;
+		uint64_t d1_up, d1_do;
+		uint64_t d2_up, d2_do;
+	};
+
+	constexpr std::array<Ray8, 64> rays = []()
+	{
+		std::array<Ray8, 64> q = { };
+		for (int sq = 0; sq < 64; sq++)
+		{
+			q[sq] = Ray8(sq);
+		}
+		return q;
+	}();
+
+	static constexpr uint64_t SolveLineHO(uint64_t occ, uint64_t m1, uint64_t m2)
+	{
+		return (occ ^ ((occ & m1) - 1ull)) & m1 | (occ ^ bit_reverse((bit_reverse(occ & m2) - 1ull))) & m2;
 	}
 
-	static constexpr uint64_t SolveLineLower_HO(uint64_t occ, uint64_t mask)
+	static constexpr uint64_t SolveLine(uint64_t occ, uint64_t m1, uint64_t m2)
 	{
-		occ &= mask;
-		return (occ ^ bit_reverse((bit_reverse(occ) - 1ull))) & mask;
+		return (((occ & m1) - 1ull) << 1ull) & m1 | (bit_reverse((bit_reverse(occ & m2) - 1ull)) >> 1ull) & m2;
 	}
-
-	static constexpr uint64_t SolveLineUpper(uint64_t occ, uint64_t mask)
-	{
-		occ &= mask;
-		return ((occ - 1ull) << 1ull) & mask;
-	}
-
-	static constexpr uint64_t SolveLineLower(uint64_t occ, uint64_t mask)
-	{
-		occ &= mask;
-		return (bit_reverse((bit_reverse(occ) - 1ull)) >> 1ull) & mask;
-	}
-
-	//This improvement is possible:
-	//(0xFFFFFFFFFFFFFFFF << (sq)) ^ (1ull << sq)
-	//(0xFFFFFFFFFFFFFFFE << (sq))
 
 	static constexpr uint64_t Rook(int sq, uint64_t occ)
 	{
-		const uint64_t lower = GetLower(sq);
-		const uint64_t upper = GetUpper(sq);
-		const uint64_t ho =	dir_HO(sq);
-		const uint64_t ve = dir_VE(sq);
-
-		return SolveLineUpper_HO(occ, upper & ho) | SolveLineLower_HO(occ, lower & ho) |
-			   SolveLineUpper(occ, upper & ve) | SolveLineLower(occ, lower & ve);
+		const Ray8& r = rays[sq];
+		return SolveLineHO(occ, r.ho_up, r.ho_do) |
+			   SolveLine(occ, r.ve_up, r.ve_do);
 	}
 
 	static constexpr uint64_t Bishop(int sq, uint64_t occ)
 	{
-		const uint64_t lower = GetLower(sq);
-		const uint64_t upper = GetUpper(sq);
-		const uint64_t d1 = dir_D1(sq);
-		const uint64_t d2 = dir_D2(sq);
-
-		return SolveLineUpper(occ, upper & d1) | SolveLineLower(occ, lower & d1) | 
-			   SolveLineUpper(occ, upper & d2) | SolveLineLower(occ, lower & d2);
+		const Ray8& r = rays[sq];
+		return SolveLine(occ, r.d1_up, r.d1_do) |
+			   SolveLine(occ, r.d2_up, r.d2_do);
 	}
 
 	static constexpr uint64_t Queen(int sq, uint64_t occ)
