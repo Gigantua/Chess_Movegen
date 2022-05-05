@@ -9,7 +9,7 @@
  *
  * Maintained by Daniel Inführ, 2022
  *
- * @file GeneticObstructionDiff.hpp
+ * @file FoldingHash.hpp
  * @author Daniel Inführ
  * @copyright 2022
  * @section License
