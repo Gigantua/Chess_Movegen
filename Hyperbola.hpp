@@ -54,8 +54,8 @@ namespace Chess_Lookup::HyperbolaQsc {
 		for (int x = 0; x < 64; ++x) {
 			for (int f = 0; f < 8; ++f) {
 				int o = 2 * x;
-				int x2, y2;
-				int b;
+				int x2{}, y2{};
+				int b{};
 
 				y2 = 0;
 				for (x2 = f - 1; x2 >= 0; --x2) {
@@ -99,7 +99,7 @@ namespace Chess_Lookup::HyperbolaQsc {
 	/* Generate attack using the hyperbola quintessence approach */
 	static constexpr uint64_t attack(uint64_t pieces, uint32_t x, uint64_t mask) {
 		uint64_t o = pieces & mask;
-		return ((o - (1ull << x)) ^ bit_bswap(bit_bswap(o) - (1ull << (x ^ 56)))) & mask;
+		return ((o - (1ull << x)) ^ bit_bswap(bit_bswap(o) - (0x8000000000000000ull >> x))) & mask; //Daniel 28.04.2022 - Faster shift. Replaces (1ull << (s ^ 56))
 	}
 
 	static constexpr uint64_t horizontal_attack(uint64_t pieces, uint32_t x) {
