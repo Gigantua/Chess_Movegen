@@ -97,6 +97,7 @@ static void PrintBrand() {
 #define Genetic8Ray_ (1)
 #define GeneticObstruction_ (1)
 #define GeneticObstructionV2_ (1)
+#define FoldingHash_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -258,6 +259,23 @@ struct GeneticObstructionDiffV2_t {
 };
 #else 
 Dummy(GeneticObstructionDiffV2_t);
+#endif
+
+
+#if FoldingHash_
+#include "FoldingHash.hpp"
+struct FoldingHash_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "FoldingHash - 4x fancy magic";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "tbd";
+	static inline constexpr std::string_view sp_op = "none";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::FoldingHash::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::FoldingHash::Size; }
+};
+#else 
+Dummy(FoldingHash_t);
 #endif
 
 
@@ -822,6 +840,7 @@ X(ArithmNT_t);		 \
 X(Kindergarten_t)	 \
 X(Sissy_t);			 \
 X(HVar_t);			 \
+X(FoldingHash_t)	 \
 X(Plain_t);			 \
 X(Fancy_t);			 \
 X(Pext_t);			 \
