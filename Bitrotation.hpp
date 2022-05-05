@@ -1,10 +1,11 @@
 #pragma once
 #include <stdint.h>
 
-//(c) Gerd Isenberg, Aleks Peshkov 2007
+//Gerd Isenberg, Aleks Peshkov 2007
 //Subtracting a Rook from a Blocking Piece - https://www.chessprogramming.org/Subtracting_a_Rook_from_a_Blocking_Piece
 
-//Improvement by Daniel Inführ 2022 - Using a non yet existing bitreverse intrinsics - but it exists on cuda. 
+//Improvement by Daniel Inführ 2022 - Using a bitreverse intrinsics - which exists on CUDA. 
+//On x64 this can be done fast with the gellar field extension avx512 (rotate bits in a 64 bit integer)
 //Update 2022: This is the fastest algorithm known on CUDA by far! http://www.talkchess.com/forum3/viewtopic.php?f=7&t=79078&start=20
 
 namespace Chess_Lookup::Bitrotation

@@ -155,6 +155,7 @@
     <ClInclude Include="Boblookup_advanced.hpp" />
     <ClInclude Include="Dumb7Fill.hpp" />
     <ClInclude Include="Exploading.hpp" />
+    <ClInclude Include="FoldingHash.hpp" />
     <ClInclude Include="Genetic8Ray.hpp" />
     <ClInclude Include="GeneticObstructionDiff.hpp" />
     <ClInclude Include="GeneticObstructionDiffV2.hpp" />
