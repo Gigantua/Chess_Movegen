@@ -18,6 +18,8 @@
 #ifdef _WIN32
 #include <limits.h>
 #include <intrin.h>
+#else
+#pragma clang diagnostic ignored "-Wignored-attributes"
 #endif
 
 class CPUID {
@@ -846,7 +848,13 @@ X(Fancy_t);			 \
 X(Pext_t);			 \
 X(Hyper_t);			 \
 
+#define ExportAlgo(X) extern "C" __declspec(dllexport) uint64_t __cdecl X##_Queen(int sq, uint64_t occ) { return X::Queen(sq, occ); }
+TestAlgo(ExportAlgo); 
+
+
+
 #define IsCorrect(X) if constexpr (X::name != "dummy") {if (X::Queen(i, occ) != atk_ref) { std::cout << X::name <<"failed. Reference:\n"<<"Occupy: "<<occ<<"\n"<<_map(occ)<<"\nSolution:\n"<<_map(atk_ref) <<"\nError:\n"<<_map(X::Queen(i, occ)); return false; }}
+
 
 //Initialize and verify all algorithms
 bool VerifyInit() {
