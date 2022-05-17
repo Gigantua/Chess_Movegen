@@ -1555,7 +1555,7 @@ namespace Chess_Lookup::BNN
 {
 	constexpr uint64_t Size = sizeof(Chess_Lookup::BNNInternal::RookWeights) + sizeof(Chess_Lookup::BNNInternal::BishopWeights);
 
-
+	#pragma warning(disable:4146)
 	static uint64_t pdedp_u64_serial(uint64_t val, uint64_t mask) {
 		uint64_t res = 0;
 		for (uint64_t bb = 1; mask; bb += bb) {

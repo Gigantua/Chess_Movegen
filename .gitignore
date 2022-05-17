@@ -10,6 +10,8 @@
 *.userosscache
 *.sln.docstates
 
+movegen_compare
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
