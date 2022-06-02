@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Movegen_Compare", "Movegen_Compare.vcxproj", "{7A2AB0AA-6F03-4648-8A0C-8473644EB699}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Movegen_dotNET", "Movegen_dotNET\Movegen_dotNET.csproj", "{085F58D7-3B68-4EC1-B969-81C5EE071F9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Movegen_cs", "Movegen_dotNET\Movegen_cs.csproj", "{085F58D7-3B68-4EC1-B969-81C5EE071F9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
