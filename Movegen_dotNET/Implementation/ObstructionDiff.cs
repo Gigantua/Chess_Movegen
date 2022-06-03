@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Movegen.Implementation
 {
@@ -72,6 +73,7 @@ namespace Movegen.Implementation
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong line_attack(int sq, ulong occ, int dir)
         {
             lineEx line = lines[4 * sq + dir];
@@ -83,16 +85,19 @@ namespace Movegen.Implementation
             return line.uni & oDif;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Bishop(int sq, ulong occ)
         {
             return line_attack(sq, occ, 2) | line_attack(sq, occ, 3);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Rook(int sq, ulong occ)
         {
             return line_attack(sq, occ, 0) | line_attack(sq, occ, 1);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Queen(int sq, ulong occ)
         {
             return Bishop(sq, occ) | Rook(sq, occ);

@@ -11,6 +11,7 @@ namespace Movegen
 {
     public class Algorithm
     {
+        public bool Imported { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public Func<int, ulong, ulong> Queen { get; set; }
@@ -46,7 +47,8 @@ namespace Movegen
                 {
                     Name = compiledAlgos[i],
                     Description = "na",
-                    Queen = compiledFunctions[i]
+                    Queen = compiledFunctions[i],
+                    Imported = false
                 });
             }
 
@@ -57,7 +59,8 @@ namespace Movegen
                 {
                     Name = "Imported: " + importedAlgos[i],
                     Description = "na",
-                    Queen = importedFunctions[i]
+                    Queen = importedFunctions[i],
+                    Imported = true
                 });
             }
 
@@ -208,9 +211,80 @@ namespace Movegen
                 Console.WriteLine($"{"Pext Pinvoke C++",-40} {result.ToString("0.00"),-10}");
             }
 
+            Console.WriteLine("\nCSharp Native Code");
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Switch.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Switch",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.ObstructionDiff.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"ObstructionDiff",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Leorik.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Leorik",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.HyperbolaQsc.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"HyperbolaQsc",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Pext.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Pext Inlined",-40} {result.ToString("0.00"),-10}");
+            }
 
             Console.WriteLine("\nImported Algorithmic Comparison");
-            foreach (var algo in algorithms)
+            foreach (var algo in algorithms.Where(x => x.Imported == true))
             {
                 var Queen = algo.Queen;
                 Stopwatch stopwatch = Stopwatch.StartNew();
