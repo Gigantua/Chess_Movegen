@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -545,6 +546,7 @@ namespace Movegen.Implementation
 			}
 			return 0;
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong GetSliderVCond(int SliderSquare, ulong occupy)
 		{
 			ulong result = 0;
@@ -1081,6 +1083,7 @@ namespace Movegen.Implementation
 			}
 			return 0;
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong GetSliderD2Cond(int SliderSquare, ulong occupy)
 		{
 			ulong result = 0;
@@ -1463,6 +1466,7 @@ namespace Movegen.Implementation
 			}
 			return 0;
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong GetSliderD1Cond(int SliderSquare, ulong occupy)
 		{
 			ulong result = 0;
@@ -1846,14 +1850,18 @@ namespace Movegen.Implementation
 			return 0;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong Rook(int square, ulong occupy)
 		{
 			return GetSliderHCond(square, occupy) | GetSliderVCond(square, occupy);
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong Bishop(int square, ulong occupy)
 		{
 			return GetSliderD1Cond(square, occupy) | GetSliderD2Cond(square, occupy);
 		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong Queen(int square, ulong occupy)
 		{
 			return Rook(square, occupy) | Bishop(square, occupy);
