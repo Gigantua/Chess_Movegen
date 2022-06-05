@@ -1,4 +1,4 @@
-//(c) Daniel Inführ 2019
+//(c) Daniel InfÃ¼hr 2019
 //for questions email to daniel.infuehr@live.de
 //Created with Espresso Logistic Heuristic minimizer
 #pragma once
@@ -9,14 +9,13 @@ namespace Chess_Lookup {
 		uint64_t result{};
 		switch (SliderSquare) {
 		case 0:
-			result = 2ull;
-			if ((occupy & 2ull) == 0) result |= 4ull;
-			if ((occupy & 6ull) == 0) result |= 8ull;
-			if ((occupy & 14ull) == 0) result |= 16ull;
-			if ((occupy & 30ull) == 0) result |= 32ull;
-			if ((occupy & 62ull) == 0) result |= 64ull;
-			if ((occupy & 126ull) == 0) result |= 128ull;
-			return result;
+		return 2ULL|(((occupy & 2ull) == 0)<<2)|
+			(((occupy & 6ull) == 0)<<3)|
+			(((occupy & 14ull) == 0)<<4)|
+			(((occupy & 30ull) == 0)<<5)|
+			(((occupy & 62ull) == 0)<<6)|
+			(((occupy & 126ull) == 0)<<6);
+
 		case 1:
 			result = 5ull;
 			if ((occupy & 4ull) == 0) result |= 8ull;
