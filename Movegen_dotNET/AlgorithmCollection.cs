@@ -174,11 +174,39 @@ namespace Movegen
                     ulong occ = occs[i]; int offset = 12 * i;
                     for (int r = 0; r < 12; r++)
                     {
+                        bulk ^= Movegen.Implementation.FancyMagic_Unsafe.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"FancyMagic Unsafe",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
                         bulk ^= Movegen.Implementation.Pext.Queen(squares[offset + r], occ);
                     }
                 }
                 double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"Pext Inlined",-40} {result.ToString("0.00"),-10}");
+                Console.WriteLine($"{"Pext",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Pext_Unsafe.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Pext Unsafe",-40} {result.ToString("0.00"),-10}");
             }
 
         }
