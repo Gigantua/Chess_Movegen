@@ -47,11 +47,11 @@ namespace Movegen.Implementation
             // return attack map
             return attacks;
         }
-
         public static ulong* Attacks;
-        public static PextEntry[] Entries = new PextEntry[64];
+        public static PextEntry* Entries = (PextEntry*)Marshal.AllocHGlobal(64 * sizeof(PextEntry));
 
 
+        [StructLayout(LayoutKind.Sequential)]
         public struct PextEntry
         {
             public ulong* atk_rook;
@@ -124,7 +124,10 @@ namespace Movegen.Implementation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe ulong Queen(int sq, ulong occupy)
         {
-            return Rook(sq, occupy) | Bishop(sq, occupy);
+            PextEntry* entry = Entries + sq;
+            return
+                *(entry->atk_rook + Bmi2.X64.ParallelBitExtract(occupy, entry->mask_rook)) |
+                *(entry->atk_bish + Bmi2.X64.ParallelBitExtract(occupy, entry->mask_bish));
         }
     }
 }
