@@ -20,7 +20,7 @@ namespace Movegen
 
     public class AlgorithmCollection
     {
-        const int perf_poscount = 1000000;
+        const int perf_poscount = 5000000;
         List<Algorithm> algorithms = new List<Algorithm>();
 
         //Algos that need special setup or are incremental
@@ -52,24 +52,24 @@ namespace Movegen
                 });
             }
 
-            for (int i = 0; i < importedClasses.Length; i++)
-            {
-                if (forbiddenImports.Contains(importedAlgos[i])) continue;
-                algorithms.Add(new Algorithm()
-                {
-                    Name = "Imported: " + importedAlgos[i],
-                    Description = "na",
-                    Queen = importedFunctions[i],
-                    Imported = true
-                });
-            }
+            //Enable this for imported code
+            //for (int i = 0; i < importedClasses.Length; i++)
+            //{
+            //    if (forbiddenImports.Contains(importedAlgos[i])) continue;
+            //    algorithms.Add(new Algorithm()
+            //    {
+            //        Name = "Imported: " + importedAlgos[i],
+            //        Description = "na",
+            //        Queen = importedFunctions[i],
+            //        Imported = true
+            //    });
+            //}
 
         }
 
         void TestSqOcc(int sq, ulong occ)
         {
             ulong reference = Movegen.Implementation.Switch.Queen(sq, occ);
-            ulong n = Interop.Switch_t_Queen(sq, occ);
             foreach (var algo in algorithms)
             {
                 ulong result = algo.Queen(sq, occ);
@@ -93,22 +93,98 @@ namespace Movegen
             Console.WriteLine("OK");
         }
 
-        public void Run()
+        void Native_Code(ulong[] occs, int[] squares)
         {
-            //Prepare random 
-            Random random = new Random(362436069);
-            List<ulong> occs = new List<ulong>();
-            List<int> squares = new List<int>();
-            for (int i = 0; i < perf_poscount; i++)
+            Console.WriteLine("\nCSharp Native Code");
             {
-                occs.Add((ulong)random.NextInt64());
-
-                for (int r = 0; r < 12; r++)
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
                 {
-                    squares.Add(random.Next() % 64);
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Switch.Queen(squares[offset + r], occ);
+                    }
                 }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Switch",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.ObstructionDiff.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"ObstructionDiff",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Leorik.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Leorik",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.HyperbolaQsc.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"HyperbolaQsc",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.FancyMagic.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"FancyMagic",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Pext.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Pext Inlined",-40} {result.ToString("0.00"),-10}");
             }
 
+        }
+
+        void Implement_Code(ulong[] occs, int[] squares)
+        {
             Console.WriteLine("\nImplementation Comparison");
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
@@ -196,93 +272,24 @@ namespace Movegen
                 compiler.Unload();
             }
 
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                ulong bulk = 0;
-                for (int i = 0; i < perf_poscount; i++)
-                {
-                    ulong occ = occs[i]; int offset = 12 * i;
-                    for (int r = 0; r < 12; r++)
-                    {
-                        bulk ^= Interop.Pext_t_Queen(squares[offset + r], occ);
-                    }
-                }
-                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"Pext Pinvoke C++",-40} {result.ToString("0.00"),-10}");
-            }
+            //{
+            //    Stopwatch stopwatch = Stopwatch.StartNew();
+            //    ulong bulk = 0;
+            //    for (int i = 0; i < perf_poscount; i++)
+            //    {
+            //        ulong occ = occs[i]; int offset = 12 * i;
+            //        for (int r = 0; r < 12; r++)
+            //        {
+            //            bulk ^= Interop.Pext_t_Queen(squares[offset + r], occ);
+            //        }
+            //    }
+            //    double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+            //    Console.WriteLine($"{"Pext Pinvoke C++",-40} {result.ToString("0.00"),-10}");
+            //}
+        }
 
-            Console.WriteLine("\nCSharp Native Code");
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                ulong bulk = 0;
-                for (int i = 0; i < perf_poscount; i++)
-                {
-                    ulong occ = occs[i]; int offset = 12 * i;
-                    for (int r = 0; r < 12; r++)
-                    {
-                        bulk ^= Movegen.Implementation.Switch.Queen(squares[offset + r], occ);
-                    }
-                }
-                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"Switch",-40} {result.ToString("0.00"),-10}");
-            }
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                ulong bulk = 0;
-                for (int i = 0; i < perf_poscount; i++)
-                {
-                    ulong occ = occs[i]; int offset = 12 * i;
-                    for (int r = 0; r < 12; r++)
-                    {
-                        bulk ^= Movegen.Implementation.ObstructionDiff.Queen(squares[offset + r], occ);
-                    }
-                }
-                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"ObstructionDiff",-40} {result.ToString("0.00"),-10}");
-            }
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                ulong bulk = 0;
-                for (int i = 0; i < perf_poscount; i++)
-                {
-                    ulong occ = occs[i]; int offset = 12 * i;
-                    for (int r = 0; r < 12; r++)
-                    {
-                        bulk ^= Movegen.Implementation.Leorik.Queen(squares[offset + r], occ);
-                    }
-                }
-                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"Leorik",-40} {result.ToString("0.00"),-10}");
-            }
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                ulong bulk = 0;
-                for (int i = 0; i < perf_poscount; i++)
-                {
-                    ulong occ = occs[i]; int offset = 12 * i;
-                    for (int r = 0; r < 12; r++)
-                    {
-                        bulk ^= Movegen.Implementation.HyperbolaQsc.Queen(squares[offset + r], occ);
-                    }
-                }
-                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"HyperbolaQsc",-40} {result.ToString("0.00"),-10}");
-            }
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                ulong bulk = 0;
-                for (int i = 0; i < perf_poscount; i++)
-                {
-                    ulong occ = occs[i]; int offset = 12 * i;
-                    for (int r = 0; r < 12; r++)
-                    {
-                        bulk ^= Movegen.Implementation.Pext.Queen(squares[offset + r], occ);
-                    }
-                }
-                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
-                Console.WriteLine($"{"Pext Inlined",-40} {result.ToString("0.00"),-10}");
-            }
-
+        void Imported_Code(ulong[] occs, int[] squares)
+        {
             Console.WriteLine("\nImported Algorithmic Comparison");
             foreach (var algo in algorithms.Where(x => x.Imported == true))
             {
@@ -299,6 +306,35 @@ namespace Movegen
                 }
                 double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
                 Console.WriteLine($"{algo.Name,-40} {result.ToString("0.00"),-10}");
+            }
+        }
+
+        public void Run()
+        {
+            //Prepare random 
+            Random random = new Random(362436069);
+            List<ulong> occs = new List<ulong>();
+            List<int> squares = new List<int>();
+            for (int i = 0; i < perf_poscount; i++)
+            {
+                occs.Add((ulong)random.NextInt64());
+
+                for (int r = 0; r < 12; r++)
+                {
+                    squares.Add(random.Next() % 64);
+                }
+            }
+            ulong[] O = occs.ToArray();
+            int[] sq = squares.ToArray();
+
+            for(int i=0;i<5;i++)
+            {
+                Native_Code(O, sq);
+
+                //Implement_Code(O, sq);
+
+                // To run this make sure to have movegen_compare.exe besides movegen_cs.exe
+                // Imported_Code(O, sq);
             }
         }
 

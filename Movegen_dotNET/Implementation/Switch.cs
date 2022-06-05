@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 namespace Movegen.Implementation
 {
 	public static class Switch
-    {
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong GetSliderHCond(int SliderSquare, ulong occupy)
 		{
 			ulong result = 0;

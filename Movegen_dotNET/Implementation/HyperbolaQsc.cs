@@ -2,6 +2,7 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -87,18 +88,20 @@ namespace Movegen.Implementation
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong bit_bswap(ulong b)
         {
             return BinaryPrimitives.ReverseEndianness(b);
         }
 
-        /* Generate attack using the hyperbola quintessence approach */
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong attack(ulong pieces, int x, ulong mask)
         {
             ulong o = pieces & mask;
             return ((o - (1ul << x)) ^ bit_bswap(bit_bswap(o) - (0x8000000000000000ul >> x))) & mask; //Daniel 28.04.2022 - Faster shift. Replaces (1ul << (s ^ 56))
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong horizontal_attack(ulong pieces, int x)
         {
             int file_mask = x & 7;
@@ -108,31 +111,37 @@ namespace Movegen.Implementation
             return ((ulong)rank_attack[o * 4 + file_mask]) << rank_mask;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong vertical_attack(ulong occ, int sq)
         {
             return attack(occ, sq, mask[sq].vertical);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong diagonal_attack(ulong occ, int sq)
         {
             return attack(occ, sq, mask[sq].diagonal);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong antidiagonal_attack(ulong occ, int sq)
         {
             return attack(occ, sq, mask[sq].antidiagonal);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong bishop_attack(int sq, ulong occ)
         {
             return diagonal_attack(occ, sq) | antidiagonal_attack(occ, sq);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong rook_attack(int sq, ulong occ)
         {
             return vertical_attack(occ, sq) | horizontal_attack(occ, sq);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Queen(int sq, ulong occ)
         {
             return bishop_attack(sq, occ) | rook_attack(sq, occ);
