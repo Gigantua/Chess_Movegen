@@ -50,20 +50,50 @@ namespace Movegen.Implementation
             return attacks;
         }
 
+        //C# initializer
         struct FancyHash
         {
-            public ulong* atk;
+            public int offset;
             public ulong mask;
             public ulong hash;
 
             public FancyHash(int offset, ulong mask, ulong hash)
             {
-                this.atk = lookup_Table + offset;
+                this.offset = offset;
                 this.mask = mask;
                 this.hash = hash;
             }
         }
-        static FancyHash[] b_magics = {
+
+        //High perf sequential for unsafe access
+        [StructLayout(LayoutKind.Sequential)]
+        struct FancyNative
+        {
+            public ulong* r_atk;
+            public ulong r_mask;
+            public ulong r_hash;
+
+            public ulong* b_atk;
+            public ulong b_mask;
+            public ulong b_hash;
+
+            public FancyNative(FancyHash rook, FancyHash bishop)
+            {
+                r_atk = lookup_Table + rook.offset;
+                b_atk = lookup_Table + bishop.offset;
+                r_mask = rook.mask;
+                r_hash = rook.hash;
+                b_mask = bishop.mask;
+                b_hash = bishop.hash;
+            }
+        }
+
+
+        static FancyNative* magics = (FancyNative*)Marshal.AllocHGlobal(64 * sizeof(FancyNative));
+
+        static FancyMagic_Unsafe()
+        {
+            FancyHash[] BMagic = {
         new FancyHash( 66157, 18428694421974023679ul, 1187473109101317119ul ),
         new FancyHash( 71730, 18446673567257459711ul, 9223336714375004157ul ),
         new FancyHash( 37781, 18446743798293722623ul, 288441550701068800ul ),
@@ -129,7 +159,7 @@ namespace Movegen.Implementation
         new FancyHash( 76355, 18437719247841787903ul, 594615890450845658ul ),
         new FancyHash( 11140, 18428694421974023679ul, 1152922330840178696ul ),
     };
-        static FancyHash[] r_magics = {
+            FancyHash[] RMagic =  {
         new FancyHash( 10890, 18446461494909402753ul, 9234631121814487039ul ),
         new FancyHash( 56054, 18446178916109254019ul, 6916402019615277055ul ),
         new FancyHash( 67495, 18445613758508956549ul, 18442234976255475711ul ),
@@ -196,8 +226,12 @@ namespace Movegen.Implementation
         new FancyHash( 1009, 9331317138511593471ul, 562962977269890ul ),
     };
 
-        static FancyMagic_Unsafe()
-        {
+            for(int i=0;i<64;i++)
+            {
+                FancyNative n = new FancyNative(RMagic[i], BMagic[i]);
+                magics[i] = n;
+            }
+
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
@@ -226,15 +260,15 @@ namespace Movegen.Implementation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong* rIndex(int s, ulong occ)
         {
-            FancyHash m = r_magics[s];
-            return m.atk + ((int)(((occ | m.mask) * m.hash) >> (64 - 12)));
+            FancyNative m = magics[s];
+            return m.r_atk + ((int)(((occ | m.r_mask) * m.r_hash) >> (64 - 12)));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong* bIndex(int s, ulong occ)
         {
-            FancyHash m = b_magics[s];
-            return m.atk + ((int)(((occ | m.mask) * m.hash) >> (64 - 9)));
+            FancyNative m = magics[s];
+            return m.b_atk + ((int)(((occ | m.b_mask) * m.b_hash) >> (64 - 9)));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -252,7 +286,10 @@ namespace Movegen.Implementation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Queen(int s, ulong occ)
         {
-            return Rook(s, occ) | Bishop(s, occ);
+            FancyNative* m = magics + s;
+            return 
+                *(m->r_atk + (((occ | m->r_mask) * m->r_hash) >> (64 - 12))) |
+                *(m->b_atk + (((occ | m->b_mask) * m->b_hash) >> (64 - 9)));
         }
     }
 }
