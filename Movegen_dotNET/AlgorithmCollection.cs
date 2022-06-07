@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,7 +39,7 @@ namespace Movegen
             var importedFunctions = importedClasses.Select(x => (Func<int, ulong, ulong>)Delegate.CreateDelegate(typeof(Func<int, ulong, ulong>), x)).ToArray();
 
             var compiledClasses = AppDomain.CurrentDomain.GetAssemblies().SelectMany(t => t.GetTypes())
-                                   .Where(t => t.IsClass && t.Namespace == "Movegen.Implementation").ToArray();
+                                   .Where(t => t.IsClass && t.Namespace == "Movegen.Implementation" && t.GetMethod("Queen") != null).ToArray();
             var compiledAlgos = compiledClasses.Select(x => x.Name).ToArray();
             var compiledFunctions = compiledClasses.Select(x => x.GetMethod("Queen")).Select(x => (Func<int, ulong, ulong>)Delegate.CreateDelegate(typeof(Func<int, ulong, ulong>), x)).ToArray();
 
@@ -109,6 +111,20 @@ namespace Movegen
                 }
                 double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
                 Console.WriteLine($"{"Switch",-40} {result.ToString("0.00"),-10}");
+            }
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                ulong bulk = 0;
+                for (int i = 0; i < perf_poscount; i++)
+                {
+                    ulong occ = occs[i]; int offset = 12 * i;
+                    for (int r = 0; r < 12; r++)
+                    {
+                        bulk ^= Movegen.Implementation.Switch_JumpTable.Queen(squares[offset + r], occ);
+                    }
+                }
+                double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+                Console.WriteLine($"{"Switch JumpTable",-40} {result.ToString("0.00"),-10}");
             }
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
@@ -208,9 +224,112 @@ namespace Movegen
                 double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
                 Console.WriteLine($"{"Pext Unsafe",-40} {result.ToString("0.00"),-10}");
             }
-
         }
 
+        public interface ISliderAlgorithm { }
+        public struct Pext : ISliderAlgorithm { }
+        public struct PextUnsafe : ISliderAlgorithm { }
+        public struct Switch : ISliderAlgorithm { }
+        public struct Switch_Jumptable : ISliderAlgorithm { }
+        public struct ObstructionDiff : ISliderAlgorithm { }
+        public struct Leorik : ISliderAlgorithm { }
+        public struct HyperbolaQsc : ISliderAlgorithm { }
+        public struct FancyMagic : ISliderAlgorithm { }
+        public struct FancyMagicUnsafe : ISliderAlgorithm { }
+
+        static unsafe void Native_Code2(ulong[] o, int[] s)
+        {
+            Console.WriteLine("\nCSharp Optimized Test Loop");
+
+            fixed (int* squares = s)
+            fixed (ulong* occs = o)
+            {
+                ulong* occs_end = occs + o.Length;
+
+                TestSlider<Switch>(occs, occs_end, squares);
+                TestSlider<Switch_Jumptable>(occs, occs_end, squares);
+                TestSlider<ObstructionDiff>(occs, occs_end, squares);
+                TestSlider<Leorik>(occs, occs_end, squares);
+                TestSlider<HyperbolaQsc>(occs, occs_end, squares);
+                TestSlider<FancyMagic>(occs, occs_end, squares);
+                TestSlider<FancyMagicUnsafe>(occs, occs_end, squares);
+                TestSlider<Pext>(occs, occs_end, squares);
+                TestSlider<PextUnsafe>(occs, occs_end, squares);
+            }
+        }
+
+        public class Slider<T> where T : struct, ISliderAlgorithm
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static ulong Queen(int square, ulong occ)
+            {
+                if (typeof(T) == typeof(Pext))
+                {
+                    return Movegen.Implementation.Pext.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(PextUnsafe))
+                {
+                    return Movegen.Implementation.Pext_Unsafe.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(FancyMagic))
+                {
+                    return Movegen.Implementation.FancyMagic.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(FancyMagicUnsafe))
+                {
+                    return Movegen.Implementation.FancyMagic_Unsafe.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(Switch))
+                {
+                    return Movegen.Implementation.Switch.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(Switch_Jumptable))
+                {
+                    return Movegen.Implementation.Switch_JumpTable.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(ObstructionDiff))
+                {
+                    return Movegen.Implementation.ObstructionDiff.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(Leorik))
+                {
+                    return Movegen.Implementation.Leorik.Queen(square, occ);
+                }
+                else if (typeof(T) == typeof(HyperbolaQsc))
+                {
+                    return Movegen.Implementation.HyperbolaQsc.Queen(square, occ);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        static unsafe void TestSlider<T>(ulong* occs, ulong* occs_end, int* squares) where T : struct, ISliderAlgorithm
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            ulong bulk = 0;
+            while(occs != occs_end)
+            {
+                ulong occ = *occs++;
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+                bulk ^= Slider<T>.Queen(*squares++, occ);
+            }
+            double result = perf_poscount * 12000.0 / (stopwatch.Elapsed.TotalSeconds * 1000000000.0);
+            Console.WriteLine($"{$"*{typeof(T).Name}",-40} {result.ToString("0.00"),-10}");
+        }
+        
         void Implement_Code(ulong[] occs, int[] squares)
         {
             Console.WriteLine("\nImplementation Comparison");
@@ -357,10 +476,9 @@ namespace Movegen
 
             for(int i=0;i<5;i++)
             {
-                Native_Code(O, sq);
-
+                //Native_Code(O, sq);
                 //Implement_Code(O, sq);
-
+                Native_Code2(O, sq);
                 // To run this make sure to have movegen_compare.exe besides movegen_cs.exe
                 // Imported_Code(O, sq);
             }
