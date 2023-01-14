@@ -285,7 +285,7 @@ Dummy(FoldingHash_t);
 #include "GaloisField.hpp"
 struct GaloisField_t {
 	static constexpr bool Supports_Template = false;
-	static inline constexpr std::string_view name = "GaloisField - AVX512 fancy magic";
+	static inline constexpr std::string_view name = "GaloisField - AVX512";
 	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
 	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=81335";
 	static inline constexpr std::string_view sp_op = "AVX512F_GFNI";
