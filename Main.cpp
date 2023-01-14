@@ -100,6 +100,7 @@ static void PrintBrand() {
 #define GeneticObstruction_ (1)
 #define GeneticObstructionV2_ (1)
 #define FoldingHash_ (1)
+#define GaloisField_ (1)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -278,6 +279,22 @@ struct FoldingHash_t {
 };
 #else 
 Dummy(FoldingHash_t);
+#endif
+
+#if GaloisField_
+#include "GaloisField.hpp"
+struct GaloisField_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "GaloisField - AVX512 fancy magic";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "http://www.talkchess.com/forum3/viewtopic.php?f=7&t=81335";
+	static inline constexpr std::string_view sp_op = "AVX512F_GFNI";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::GaloisField::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::GaloisField::Size; }
+};
+#else 
+Dummy(GaloisField_t);
 #endif
 
 
@@ -815,6 +832,7 @@ static std::string _map(uint64_t value)
 #define TestAlgo(X)	 \
 X(SBAMG_t)			 \
 X(SBAMGNT_t)		 \
+X(GaloisField_t)	 \
 X(Hyperbola_t);		 \
 X(HyperbolaNT_t)	 \
 X(Genetic8Ray_t)     \
@@ -1214,6 +1232,9 @@ constexpr std::array<int, 3> d = []()
 }();
 
 int main() {
+
+	auto a = Chess_Lookup::GaloisField::Queen(0,0);
+	
 	VerifyInit();
 	PrintBrand();
 

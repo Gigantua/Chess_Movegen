@@ -120,7 +120,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
@@ -140,7 +140,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
@@ -160,6 +160,7 @@
     <ClInclude Include="Dumb7Fill.hpp" />
     <ClInclude Include="Exploading.hpp" />
     <ClInclude Include="FoldingHash.hpp" />
+    <ClInclude Include="GaloisField.hpp" />
     <ClInclude Include="Genetic8Ray.hpp" />
     <ClInclude Include="GeneticObstructionDiff.hpp" />
     <ClInclude Include="GeneticObstructionDiffV2.hpp" />

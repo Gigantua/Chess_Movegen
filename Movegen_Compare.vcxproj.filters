@@ -119,5 +119,8 @@
     <ClInclude Include="FoldingHash.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GaloisField.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
