@@ -148,6 +148,7 @@ namespace Chess_Lookup::GaloisField
 	}
 
 	//ALL OF THE ABOVE CAN BECOME THIS:
+	//https://godbolt.org/z/vYjaefEnP
 	//PREPARATION FOR Actual AVX512 implementation. TODO: TEST
 	//Use __AVX512BW__ + AVX512F
 	// DEPENDENCIES
