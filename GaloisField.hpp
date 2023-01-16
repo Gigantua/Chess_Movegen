@@ -147,6 +147,40 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
+	//ALL OF THE ABOVE CAN BECOME THIS:
+	//PREPARATION FOR Actual AVX512 implementation. TODO: TEST
+	//Use __AVX512BW__ + AVX512F
+	// DEPENDENCIES
+	//_mm512_gf2p8affine_epi64_epi8 
+	/*
+	static __m512i bit_reverse(__m512i input) {
+		__m512i b = _mm512_gf2p8affine_epi64_epi8(input, _mm512_set1_epi64(0x8040201008040201), 0x00);
+
+		return _mm512_shuffle_epi8(b, _mm512_set_epi8(
+			7, 6, 5, 4, 3, 2, 1, 0,
+			15, 14, 13, 12, 11, 10, 9, 8,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			15, 14, 13, 12, 11, 10, 9, 8,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			15, 14, 13, 12, 11, 10, 9, 8,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			15, 14, 13, 12, 11, 10, 9, 8
+		));
+	}
+
+	static __m512i operator& (const __m512i& a, const __m512i& b) {
+		return _mm512_and_si512(a, b);
+	}
+
+	static __m512i operator^ (const __m512i& a, const __m512i& b) {
+		return _mm512_xor_si512(a, b);
+	}
+
+	static __m512i operator- (const __m512i& a, const __m512i& b) {
+		return _mm512_sub_epi64(a, b);
+	}
+	*/
+
 	template<uint64_t bb>
 	uint64_t mask_shift(int ranks) {
 		return ranks > 0 ? bb >> (ranks << 3) : bb << -(ranks << 3);
