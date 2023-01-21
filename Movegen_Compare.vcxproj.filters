@@ -122,5 +122,8 @@
     <ClInclude Include="GaloisField.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KindergartenSuperSissyBoard.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

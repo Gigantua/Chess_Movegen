@@ -169,6 +169,7 @@
     <ClInclude Include="Hash_Var.hpp" />
     <ClInclude Include="AVXShift.hpp" />
     <ClInclude Include="Hyperbola_IL.hpp" />
+    <ClInclude Include="KindergartenSuperSissyBoard.hpp" />
     <ClInclude Include="Leorik_IL.hpp" />
     <ClInclude Include="Leorik.hpp" />
     <ClInclude Include="Kindergarten.hpp" />

@@ -88,6 +88,7 @@ static void PrintBrand() {
 #define GeneticQBB_	 (1)
 #define HVar_	 (1)
 #define Sissy_	 (1)
+#define KGSSB_	 (1)
 #define Dumb7_	 (1)
 #define AVXShift_	 (1)
 #define Leorik_	 (1)
@@ -794,6 +795,22 @@ struct Sissy_t {
 Dummy(Sissy_t);
 #endif
 
+#if KGSSB_
+#include "KindergartenSuperSissyBoard.hpp"
+struct Kgssb_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Kindergarten Super SISSY Bitboards";
+	static inline constexpr std::string_view author = "Michael Sherwin";
+	static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=81234&start=30";
+	static inline constexpr std::string_view sp_op = "imul64";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::KGSSB::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::KGSSB::Size; }
+};
+#else 
+Dummy(Kgssb_t);
+#endif
+
 #if Rotate_
 #include "Bitrotation.hpp"
 struct Bitrotate_t {
@@ -859,6 +876,7 @@ X(Arithm_t);		 \
 X(ArithmNT_t);		 \
 X(Kindergarten_t)	 \
 X(Sissy_t);			 \
+X(Kgssb_t);			 \
 X(HVar_t);			 \
 X(FoldingHash_t)	 \
 X(Plain_t);			 \
@@ -881,6 +899,7 @@ bool VerifyInit() {
 #if Sissy_
 	//Todo: Constexpr initializer
 	Chess_Lookup::SISSY::Init();
+	Chess_Lookup::KGSSB::Init();
 #endif
 
 	std::cout << "Verify Engines...";
@@ -916,7 +935,7 @@ bool VerifyInit() {
 	return true;
 }
 
-const uint64_t poscnt = 1000000;
+const uint64_t poscnt = 5000000;
 thread_local volatile uint64_t opt = 0;
 
 //Assume 50 moves for a board with 8 sliders. (2 already off the board)
