@@ -9,15 +9,14 @@
 
 namespace Chess_Lookup::KGSSB
 {
-	uint64_t vMask[64];
-	uint64_t hMask[64];
-	uint64_t dMask[64];
-	uint64_t aMask[64];
-
-	uint64_t vSubset[64][64];
-	uint64_t hSubset[64][64];
-	uint64_t dSubset[64][64];
-	uint64_t aSubset[64][64];
+	static uint64_t vMask[64];
+	static uint64_t hMask[64];
+	static uint64_t dMask[64];
+	static uint64_t aMask[64];
+	static uint64_t vSubset[64][64];
+	static uint64_t hSubset[64][64];
+	static uint64_t dSubset[64][64];
+	static uint64_t aSubset[64][64];
 
 	static constexpr uint64_t Size = (64 * 64 * 4 + 64 * 4) * sizeof(uint64_t);
 
@@ -141,20 +140,16 @@ namespace Chess_Lookup::KGSSB
 
 	static uint64_t Bishop(int sq, uint64_t occ)
 	{
-		uint64_t dBlockers = occ & dMask[sq];
-		uint64_t aBlockers = occ & aMask[sq];
-		uint64_t dIndex = ((dBlockers * 0x0202020202020202ull) >> 58);
-		uint64_t aIndex = ((aBlockers * 0x0202020202020202ull) >> 58);
-		return (dSubset[sq][dIndex] | aSubset[sq][aIndex]) & ~(1ull << sq);
+		return
+			dSubset[sq][(((occ & dMask[sq]) * 0x0202020202020202ull) >> 58)] +
+			aSubset[sq][(((occ & aMask[sq]) * 0x0202020202020202ull) >> 58)];
 	}
 
 	static uint64_t Rook(int sq, uint64_t occ)
 	{
-		uint64_t vBlockers = (occ >> (sq & 7)) & 0x0101010101010101ull;
-		uint64_t hBlockers = occ & hMask[sq];
-		uint64_t vIndex = ((vBlockers * 0x0080402010080400ull) >> 58);
-		uint64_t hIndex = (hBlockers >> (((sq >> 3) << 3)) + 1);
-		return (vSubset[sq][vIndex] | hSubset[sq][hIndex]) & ~(1ull << sq);
+		uint64_t hIndex = (occ >> (sq & 0b11111000u) + 1) & 0x000000000000003f;
+		uint64_t vIndex = ((((occ >> (sq & 7)) & 0x0101010101010101ull) * 0x0080402010080400ull) >> 58);
+		return vSubset[sq][vIndex] | hSubset[sq][hIndex];
 	}
 
 
