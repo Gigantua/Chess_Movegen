@@ -147,7 +147,7 @@ namespace Chess_Lookup::KGSSB
 
 	static uint64_t Rook(int sq, uint64_t occ)
 	{
-		uint64_t hIndex = (occ >> (sq & 0b11111000u) + 1) & 0x000000000000003f;
+		uint64_t hIndex = (occ >> ((sq & 0b11111000u) + 1)) & 0x000000000000003f;
 		uint64_t vIndex = ((((occ >> (sq & 7)) & 0x0101010101010101ull) * 0x0080402010080400ull) >> 58);
 		return vSubset[sq][vIndex] | hSubset[sq][hIndex];
 	}

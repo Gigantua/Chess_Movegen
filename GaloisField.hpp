@@ -67,7 +67,7 @@ namespace Chess_Lookup::GaloisField
 		return val;
 	}();
 
-	static constexpr uint8_t affine_byte(uint8_t qword[8], uint8_t byte) {
+	static uint8_t affine_byte(uint8_t qword[8], uint8_t byte) {
 		uint8_t res = 0;
 		res |= parity_lu[(qword[7 - 0] & byte)] << 0;
 		res |= parity_lu[(qword[7 - 1] & byte)] << 1;
@@ -80,7 +80,7 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
-	static constexpr __m512i _mm512_set1_epi64(uint64_t broadcast) {
+	static __m512i _mm512_set1_epi64(uint64_t broadcast) {
 		__m512i res;
 		for (int i = 0; i < 8; i++) {
 			res.qword[i] = { broadcast };
@@ -90,7 +90,7 @@ namespace Chess_Lookup::GaloisField
 
 	//This is the main part of the algorithm: 8x8 matrix mulitplication via avx512. In this case reversing bits - but a real algeabraic solution might be possible.
 	//A solution would be a matrix array that can solve all possible input configurations for a slider just by multiplication.
-	static constexpr __m512i _mm512_gf2p8affine_epi64_epi8(__m512i x, __m512i A, uint8_t imm8) {
+	static __m512i _mm512_gf2p8affine_epi64_epi8(__m512i x, __m512i A, uint8_t imm8) {
 		__m512i res;
 		for (int j = 0; j < Limit; j++) {
 			res.qword[j].byte[0] = affine_byte(A.qword[j].byte, x.qword[j].byte[0]) ^ imm8;
@@ -105,25 +105,35 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
-	static constexpr __m512i reverse_1x8(__m512i input) {
+	static __m512i reverse_1x8(__m512i input) {
 		const __m512i select = _mm512_set1_epi64(0x8040201008040201);
 		return _mm512_gf2p8affine_epi64_epi8(input, select, 0x00);
 	}
 
+	static uint64_t byteswap(uint64_t value)
+	{
+#ifdef __linux__ 
+		#include <byteswap.h>
+		return bswap_64(value);
+#else
+		return std::byteswap(value);
+#endif
+	}
+
 	//TODO: Implement this with _mm512_shuffle_epi8
 	//Reverses bits in all 64 bytes at once 
-	static constexpr __m512i bit_reverse(__m512i input) {
+	static __m512i bit_reverse(__m512i input) {
 		__m512i b = _mm512_gf2p8affine_epi64_epi8(input, _mm512_set1_epi64(0x8040201008040201), 0x00);
 
 		if constexpr (Limit == 4) {
-			return { std::byteswap(b.qword[0].value), std::byteswap(b.qword[1].value), std::byteswap(b.qword[2].value), std::byteswap(b.qword[3].value), 0ull, 0ull, 0ull, 0ull };
+			return { byteswap(b.qword[0].value), byteswap(b.qword[1].value), byteswap(b.qword[2].value), byteswap(b.qword[3].value), 0ull, 0ull, 0ull, 0ull };
 		}
 
-		return { std::byteswap(b.qword[0].value), std::byteswap(b.qword[1].value), std::byteswap(b.qword[2].value), std::byteswap(b.qword[3].value),
-				 std::byteswap(b.qword[4].value), std::byteswap(b.qword[5].value), std::byteswap(b.qword[6].value), std::byteswap(b.qword[7].value) };
+		return { byteswap(b.qword[0].value), byteswap(b.qword[1].value), byteswap(b.qword[2].value), byteswap(b.qword[3].value),
+				 byteswap(b.qword[4].value), byteswap(b.qword[5].value), byteswap(b.qword[6].value), byteswap(b.qword[7].value) };
 	}
 
-	static constexpr __m512i operator& (const __m512i& a, const __m512i& b) {
+	static __m512i operator& (const __m512i& a, const __m512i& b) {
 		__m512i res;
 		for (int i = 0; i < Limit; i++) {
 			res[i] = a[i] & b[i];
@@ -131,7 +141,7 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
-	static constexpr __m512i operator^ (const __m512i& a, const __m512i& b) {
+	static __m512i operator^ (const __m512i& a, const __m512i& b) {
 		__m512i res;
 		for (int i = 0; i < Limit; i++) {
 			res[i] = a[i] ^ b[i];
@@ -139,7 +149,7 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
-	static constexpr __m512i operator- (const __m512i& a, const __m512i& b) {
+	static __m512i operator- (const __m512i& a, const __m512i& b) {
 		__m512i res;
 		for (int i = 0; i < Limit; i++) {
 			res[i] = a[i] - b[i];
@@ -199,7 +209,7 @@ namespace Chess_Lookup::GaloisField
 	//}
 
 	//This can solve 8 rays, so all moves of two queens at once or 4 (rooks, bishops)
-	static constexpr __m512i attack8(uint64_t occ, uint64_t x, __m512i mask) {
+	static __m512i attack8(uint64_t occ, uint64_t x, __m512i mask) {
 		__m512i o = _mm512_set1_epi64(occ) & mask;
 		__m512i sq = _mm512_set1_epi64(1ull << x);
 		__m512i sq_rev = _mm512_set1_epi64((1ull << (x ^ 63)));
