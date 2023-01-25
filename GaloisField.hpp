@@ -18,6 +18,9 @@
  //This can be used to rotate bits like bitrotate which is 
  //https://builders.intel.com/docs/networkbuilders/galois-field-new-instructions-gfni-technology-guide.pdf
 
+//This is generally a non cryptographic use of the function - it has a more general application than is currently widely known. 
+//https://gist.github.com/animetosho/d3ca95da2131b5813e16b5bb1b137ca0
+
 #pragma once
 #include <cstdint>
 #include <array>
