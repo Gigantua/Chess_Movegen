@@ -125,5 +125,11 @@
     <ClInclude Include="KindergartenSuperSissyBoard.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Gigantua.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PextSparse.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

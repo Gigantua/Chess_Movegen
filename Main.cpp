@@ -13,6 +13,7 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include <tuple>
 
 #ifdef _WIN32
@@ -74,6 +75,7 @@ static void PrintBrand() {
 #define Plain_	 (1)
 #define Fancy_	 (1)
 #define Pext_	 (1)
+#define PextSparse_	 (0)
 #define Kindergarten_ (1)
 #define PextEmu_ (1)
 #define Hyper_	 (1)
@@ -102,6 +104,7 @@ static void PrintBrand() {
 #define GeneticObstructionV2_ (1)
 #define FoldingHash_ (1)
 #define GaloisField_ (1)
+#define Gigantua_ (0)
 
 #define MaskOf(X) _blsi_u64(X)
 #define SquareOf(X) _tzcnt_u64(X)
@@ -299,6 +302,23 @@ Dummy(GaloisField_t);
 #endif
 
 
+#if Gigantua_
+#include "Gigantua.hpp"
+struct Gigantua_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Gigantua Rotation Algorithm";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr (dangi12012)";
+	static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=81707&sid=ec3532ea1ce1e8014d2b579b29fddd34";
+	static inline constexpr std::string_view sp_op = "AVX2 or AVX512 + GFNI";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Gigantua::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::Gigantua::Size; }
+};
+#else 
+Dummy(Gigantua_t);
+#endif
+
+
 #if Genetic8Ray_
 #include "Genetic8Ray.hpp"
 struct Genetic8Ray_t {
@@ -469,6 +489,22 @@ struct Hyper_t {
 	};
 #else 
 	Dummy(Pext_t);
+#endif
+
+#if PextSparse_
+#include "PextSparse.hpp"
+	struct PextSparse_t {
+		static constexpr bool Supports_Template = false;
+		static inline constexpr std::string_view name = "Sparse Pext";
+		static inline constexpr std::string_view author = "Thomas Jahn";
+		static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=79049&start=340";
+		static inline constexpr std::string_view sp_op = "pext_u64";
+
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::PextSparse::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::PextSparse::Size; }
+	};
+#else 
+	Dummy(PextSparse_t);
 #endif
 
 #if PextEmu_
@@ -845,11 +881,13 @@ static std::string _map(uint64_t value)
 	return str;
 }
 
+// Todo - publish pext outperformer X(Gigantua_t);
 
 #define TestAlgo(X)	 \
 X(SBAMG_t)			 \
 X(SBAMGNT_t)		 \
 X(GaloisField_t)	 \
+X(Gigantua_t)	     \
 X(Hyperbola_t);		 \
 X(HyperbolaNT_t)	 \
 X(Genetic8Ray_t)     \
@@ -882,7 +920,8 @@ X(FoldingHash_t)	 \
 X(Plain_t);			 \
 X(Fancy_t);			 \
 X(Pext_t);			 \
-X(Hyper_t);			 \
+X(PextSparse_t);     \
+X(Hyper_t);			 
 
 #define ExportAlgo(X) extern "C" __declspec(dllexport) uint64_t __cdecl X##_Queen(int sq, uint64_t occ) { return X::Queen(sq, occ); }
 TestAlgo(ExportAlgo); 
@@ -899,7 +938,11 @@ bool VerifyInit() {
 #if Sissy_
 	//Todo: Constexpr initializer
 	Chess_Lookup::SISSY::Init();
+#endif
 	Chess_Lookup::KGSSB::Init();
+	Chess_Lookup::PextSparse::Init();
+#if Gigantua_
+	Chess_Lookup::Gigantua::Init();
 #endif
 
 	std::cout << "Verify Engines...";
@@ -1027,6 +1070,70 @@ double Get_MLU()
 		}
 		for (int r = 0; r < 12; r++) { //12000.0
 			dontopt ^= T::Queen(squares[12 * i + r], occ);
+		}
+	}
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	opt = dontopt;
+	auto is_tmpl = T::Supports_Template ? "yes" : "no";
+	double result = poscnt * 12000.0 / duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+	auto perf = std::to_string(result);
+	auto table = std::to_string(T::Size() / 8);
+	table.append(7 - table.size(), ' ');
+	table += " [" + std::to_string(T::Size() / 1024) + "kb]";
+
+	printf("%-35s%-30s%-20s%-25s%-10s%-45s%-50s\n", T::name.data(), perf.c_str(), table.c_str(), T::sp_op.data(), is_tmpl, T::author.data(), T::reference.data());
+
+	return result;
+}
+
+static volatile inline int* cache_pressure_buffer = nullptr;
+
+template<typename T>
+double Get_MLU_Cache_Pressure()
+{
+	//Set seeds to be fair to every movegen
+	rx = 123456789, ry = 362436069, rz = 521288629;
+	std::vector<uint64_t> occs;
+	std::vector<uint8_t> squares;
+
+	for (int i = 0; i < poscnt; i++) {
+		occs.push_back(rand64() & rand64());
+
+		for (int r = 0; r < 12; r++) {
+			squares.push_back(rand32() % 64);
+		}
+	}
+	volatile uint64_t sum = 0;
+	constexpr int cache_pressure_size = 64 * 1024 * 1024;
+	if (cache_pressure_buffer == nullptr) {
+		cache_pressure_buffer = new(std::nothrow) int[cache_pressure_size];
+	}
+	if (cache_pressure_buffer == nullptr) {
+		std::cout << "Could not allocate 1GB buffer";
+		return 0;
+	}
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	uint64_t dontopt = 0;
+	for (int i = 0; i < poscnt; i++) {
+		uint64_t occ = occs[i];
+		if constexpr (std::is_same<T, Hyper_t>()) {
+			Hyper_t::Prepare(occ);
+		}
+		if constexpr (std::is_same<T, Rotate_t>()) {
+			Rotate_t::Prepare(occ);
+		}
+		for (int r = 0; r < 12; r++) { //12000.0
+			dontopt ^= T::Queen(squares[12 * i + r], occ);
+		}
+
+		//Emulate random io after a few slider lookups
+		if (i % 65536 == 0) {
+			for (int m = 0; m < 4; m++) {
+				cache_pressure_buffer[rand32() % cache_pressure_size] ^= rand32();
+			}
+			sum += std::reduce(cache_pressure_buffer, cache_pressure_buffer + cache_pressure_size);
 		}
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -1220,17 +1327,18 @@ void PrintPerf(std::vector<Thread_Perf_t>& mt_res) {
 }
 
 																												  
-#define Norm(X) if constexpr (X::name != "dummy")		   { Get_MLU<X>(); }									  //Random pos, Random occupation, 1 Thread
-#define NormSquare(X) if constexpr (X::name != "dummy")	   { Get_MLU_KnownSourceSquare<X>(); }					  //Known  pos, Random occupation, 1 Thread
-#define Multithreaded(X) if constexpr (X::name != "dummy") { mt_res.push_back(Get_MLU_Threaded<X>()); }			  //Random pos, Random occupation, N Threads
-#define Emulated(X) if constexpr (X::name != "dummy")	   { Get_MLU_EmulateGame<X>(); }						  //Random pos, Emulated game occ, 1 Thread
+#define Norm(X) if constexpr (X::name != "dummy")		    { Get_MLU<X>(); }									  //Random pos, Random occupation, 1 Thread
+#define NormTTPressure(X) if constexpr (X::name != "dummy") { Get_MLU_Cache_Pressure<X>(); }					  //Random pos, Random occupation, 1 Thread
+#define NormSquare(X) if constexpr (X::name != "dummy")	    { Get_MLU_KnownSourceSquare<X>(); }					  //Known  pos, Random occupation, 1 Thread
+#define Multithreaded(X) if constexpr (X::name != "dummy")  { mt_res.push_back(Get_MLU_Threaded<X>()); }		  //Random pos, Random occupation, N Threads
+#define Emulated(X) if constexpr (X::name != "dummy")	    { Get_MLU_EmulateGame<X>(); }						  //Random pos, Emulated game occ, 1 Thread
 
 void GetPerf() {
 	//std::cout << "\nMillion Lookups/s Known Squares, Random Occupation/s:\n";
 	//printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
 	//TestAlgo(NormSquare);
 
-	std::cout << "\nMillion Lookups/s Random Squares, Random Occupation/s:\n";
+	std::cout << "\nMillion Lookups/s Random Squares, Random Occupation, Transposition Table Cache Pressure Simulation:\n";
 	printf("%-35s%-30s%-20s%-25s%-10s%-45s%s\n", "Name", "Performance [MQueens/s]", "Tablesize", "Dependencies", "Template", "Author", "Reference");
 	TestAlgo(Norm);
 

@@ -25,6 +25,10 @@
 #include <cstdint>
 #include <array>
 
+#ifdef __AVX2__
+#include <immintrin.h>
+#endif
+
 //AVX512F_GFNI
 namespace Chess_Lookup::GaloisField
 {
@@ -37,7 +41,7 @@ namespace Chess_Lookup::GaloisField
 		uint8_t byte[8];
 	};
 
-	union __m512i {
+	union u64x8 {
 		struct {
 			qword qword[8];
 		};
@@ -83,8 +87,8 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
-	static __m512i _mm512_set1_epi64(uint64_t broadcast) {
-		__m512i res;
+	static u64x8 _mm512_set1_epi64(uint64_t broadcast) {
+		u64x8 res;
 		for (int i = 0; i < 8; i++) {
 			res.qword[i] = { broadcast };
 		}
@@ -93,8 +97,8 @@ namespace Chess_Lookup::GaloisField
 
 	//This is the main part of the algorithm: 8x8 matrix mulitplication via avx512. In this case reversing bits - but a real algeabraic solution might be possible.
 	//A solution would be a matrix array that can solve all possible input configurations for a slider just by multiplication.
-	static __m512i _mm512_gf2p8affine_epi64_epi8(__m512i x, __m512i A, uint8_t imm8) {
-		__m512i res;
+	static u64x8 _mm512_gf2p8affine_epi64_epi8_impl(u64x8 x, u64x8 A, uint8_t imm8) {
+		u64x8 res;
 		for (int j = 0; j < Limit; j++) {
 			res.qword[j].byte[0] = affine_byte(A.qword[j].byte, x.qword[j].byte[0]) ^ imm8;
 			res.qword[j].byte[1] = affine_byte(A.qword[j].byte, x.qword[j].byte[1]) ^ imm8;
@@ -108,9 +112,9 @@ namespace Chess_Lookup::GaloisField
 		return res;
 	}
 
-	static __m512i reverse_1x8(__m512i input) {
-		const __m512i select = _mm512_set1_epi64(0x8040201008040201);
-		return _mm512_gf2p8affine_epi64_epi8(input, select, 0x00);
+	static u64x8 reverse_1x8(u64x8 input) {
+		const u64x8 select = _mm512_set1_epi64(0x8040201008040201);
+		return _mm512_gf2p8affine_epi64_epi8_impl(input, select, 0x00);
 	}
 
 	static uint64_t byteswap(uint64_t value)
@@ -125,8 +129,8 @@ namespace Chess_Lookup::GaloisField
 
 	//TODO: Implement this with _mm512_shuffle_epi8
 	//Reverses bits in all 64 bytes at once 
-	static __m512i bit_reverse(__m512i input) {
-		__m512i b = _mm512_gf2p8affine_epi64_epi8(input, _mm512_set1_epi64(0x8040201008040201), 0x00);
+	static u64x8 bit_reverse(u64x8 input) {
+		u64x8 b = _mm512_gf2p8affine_epi64_epi8_impl(input, _mm512_set1_epi64(0x8040201008040201), 0x00);
 
 		if constexpr (Limit == 4) {
 #ifdef __AVX2__
@@ -141,24 +145,24 @@ namespace Chess_Lookup::GaloisField
 				 byteswap(b.qword[4].value), byteswap(b.qword[5].value), byteswap(b.qword[6].value), byteswap(b.qword[7].value) };
 	}
 
-	static __m512i operator& (const __m512i& a, const __m512i& b) {
-		__m512i res;
+	static u64x8 operator& (const u64x8& a, const u64x8& b) {
+		u64x8 res;
 		for (int i = 0; i < Limit; i++) {
 			res[i] = a[i] & b[i];
 		}
 		return res;
 	}
 
-	static __m512i operator^ (const __m512i& a, const __m512i& b) {
-		__m512i res;
+	static u64x8 operator^ (const u64x8& a, const u64x8& b) {
+		u64x8 res;
 		for (int i = 0; i < Limit; i++) {
 			res[i] = a[i] ^ b[i];
 		}
 		return res;
 	}
 
-	static __m512i operator- (const __m512i& a, const __m512i& b) {
-		__m512i res;
+	static u64x8 operator- (const u64x8& a, const u64x8& b) {
+		u64x8 res;
 		for (int i = 0; i < Limit; i++) {
 			res[i] = a[i] - b[i];
 		}
@@ -217,10 +221,10 @@ namespace Chess_Lookup::GaloisField
 	//}
 
 	//This can solve 8 rays, so all moves of two queens at once or 4 (rooks, bishops)
-	static __m512i attack8(uint64_t occ, uint64_t x, __m512i mask) {
-		__m512i o = _mm512_set1_epi64(occ) & mask;
-		__m512i sq = _mm512_set1_epi64(1ull << x);
-		__m512i sq_rev = _mm512_set1_epi64((1ull << (x ^ 63)));
+	static u64x8 attack8(uint64_t occ, uint64_t x, u64x8 mask) {
+		u64x8 o = _mm512_set1_epi64(occ) & mask;
+		u64x8 sq = _mm512_set1_epi64(1ull << x);
+		u64x8 sq_rev = _mm512_set1_epi64((1ull << (x ^ 63)));
 
 		return ((o - sq) ^ bit_reverse(bit_reverse(o) - sq_rev)) & mask;
 	}
@@ -230,7 +234,7 @@ namespace Chess_Lookup::GaloisField
 		//Generally a permutation of queen, rook, bishop could be created at compiletime and used via template
 		//OR a permutation could be looked up in a runtime mask array
 
-		__m512i mask = { dir_HO(sq) ^ (1ull << sq) , dir_VE(sq) ^ (1ull << sq), dir_D1(sq) ^ (1ull << sq), dir_D2(sq) ^ (1ull << sq), 0ull, 0ull, 0ull, 0ull };
+		u64x8 mask = { dir_HO(sq) ^ (1ull << sq) , dir_VE(sq) ^ (1ull << sq), dir_D1(sq) ^ (1ull << sq), dir_D2(sq) ^ (1ull << sq), 0ull, 0ull, 0ull, 0ull };
 		mask = attack8(occ, sq, mask);
 		return mask[0] | mask[1] | mask[2] | mask[3];
 	}
