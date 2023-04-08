@@ -939,10 +939,14 @@ bool VerifyInit() {
 	//Todo: Constexpr initializer
 	Chess_Lookup::SISSY::Init();
 #endif
-	Chess_Lookup::KGSSB::Init();
+#if PextSparse_
 	Chess_Lookup::PextSparse::Init();
+#endif
 #if Gigantua_
 	Chess_Lookup::Gigantua::Init();
+#endif
+#if KGSSB_
+	Chess_Lookup::KGSSB::Init();
 #endif
 
 	std::cout << "Verify Engines...";

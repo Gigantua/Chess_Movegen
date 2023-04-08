@@ -2,7 +2,7 @@
 // Datum  : 21.01.2023
 // Author : Michael J Sherwin 2023
 // Content: The name is Kindergarten Super SISSY Bitboards - https://www.talkchess.com/forum3/viewtopic.php?f=7&t=81234&start=30
-//          The code can be further "minimized" according to the author
+//          The code can be further minimized according to the author
 //			C++20 constexpr port by Daniel Infuehr
 
 #include <stdint.h>
@@ -170,3 +170,172 @@ namespace Chess_Lookup::KGSSB
         return Rook(sq, occ) | Bishop(sq, occ);
     }
 }
+
+
+//This namespace implements Mike Sherwin's Kindergarten Super SISSY Bitboards where SISSY stands for Split Index Sub Set Yielding
+//...henceforth we shall abreviate it as KiSS <3
+
+//Alternative but slightly slower alternative ported from C#. 470mnps vs above 520mnps. 
+/*
+namespace Chess_Lookup::KISS
+{
+    static uint64_t* dSubset = new uint64_t[64 * 64];
+    static uint64_t* aSubset = new uint64_t[64 * 64];
+    static uint64_t* vSubset = new uint64_t[64 * 64];
+    static uint64_t* hSubset = new uint64_t[64 * 64];
+
+    static uint64_t DiagonalMask[64];
+    static uint64_t AntiDiagonalMask[64];
+    static uint64_t HorizontalMask[64];
+    static uint64_t VerticalMask[64];
+
+    static auto const Size = 64 * 64 * 4 * 8 + 64 * 4 * 8;
+
+    const int FILE_A = 0;
+    const int FILE_H = 7;
+    const int RANK_1 = 0;
+    const int RANK_8 = 7;
+    const uint64_t FILE_A2_A7 = 0x0001010101010100;
+    const uint64_t DIAGONAL_C2_H7 = 0x0080402010080400;
+
+    static int Rank(int square) { return square >> 3; }
+    static int File(int square) { return square & 7; }
+
+    
+    static inline uint64_t BishopAttacks(int square, uint64_t occupation)
+    {
+        uint64_t dIndex = (occupation & DiagonalMask[square]) * FILE_A2_A7 >> 57;
+        uint64_t aIndex = (occupation & AntiDiagonalMask[square]) * FILE_A2_A7 >> 57;
+        return dSubset[square * 64 + (int)dIndex] | aSubset[square * 64 + (int)aIndex];
+    }
+
+    static inline uint64_t RookAttacks(int square, uint64_t occupation)
+    {
+        uint64_t hIndex = occupation >> (square & 0b111000 | 1) & 63;
+        uint64_t vIndex = (occupation >> (square & 0b000111) & FILE_A2_A7) * DIAGONAL_C2_H7 >> 58;
+        return hSubset[square * 64 + (int)hIndex] | vSubset[square * 64 + (int)vIndex];
+    }
+
+    static inline uint64_t Queen(int sq, uint64_t occ) {
+        return RookAttacks(sq, occ) | BishopAttacks(sq, occ);
+    }
+
+
+    static bool IsFree(uint64_t mask, int square) {
+        return (mask & 1ull << File(square)) == 0;
+    }
+    static bool IsVerticalFree(uint64_t mask, int square) {
+        return (mask & 1ull << square - File(square)) == 0;
+    }
+
+    static uint64_t GetBlockers(int square, int index) {
+        return (uint64_t)(index << 1) & ~(1ull << File(square));
+    }
+
+    //Place the 6 'index' bits FEDCBA like this, leave standing square ZERO 
+    //  - - - - - - - - 
+    //  A - - - - - - - 
+    //  B - - - - - - - 
+    //  C - - - - - - - 
+    //  D - - - - - - - 
+    //  E - - - - - - - 
+    //  F - - - - - - - 
+    //  - - - - - - - - 
+    static uint64_t GetVerticalBlockers(int square, int index)
+    {
+        uint64_t blockers = 0;
+        for (int i = 0, shift = 48; i < 6; i++, shift -= 8)
+            if ((index & 1 << i) > 0) //index bit is set?
+                if (shift != square - File(square)) //don't block standing square
+                    blockers |= 1ull << shift;
+        return blockers;
+    }
+    static uint64_t GetDiagonalSubset(int square, int index)
+    {
+        uint64_t blockers = GetBlockers(square, index);
+        uint64_t result = 0;
+        for (int sq = square; IsFree(blockers, sq) && File(sq) < FILE_H && Rank(sq) < RANK_8; sq += 9)
+            result |= 1ull << sq + 9;
+        for (int sq = square; IsFree(blockers, sq) && File(sq) > FILE_A && Rank(sq) > RANK_1; sq -= 9)
+            result |= 1ull << sq - 9;
+        return result;
+    }
+
+    static uint64_t GetAntiDiagonalSubset(int square, int index)
+    {
+        uint64_t blockers = GetBlockers(square, index);
+        uint64_t result = 0;
+        for (int sq = square; IsFree(blockers, sq) && File(sq) > FILE_A && Rank(sq) < RANK_8; sq += 7)
+            result |= 1ull << sq + 7;
+        for (int sq = square; IsFree(blockers, sq) && File(sq) < FILE_H && Rank(sq) > RANK_1; sq -= 7)
+            result |= 1ull << sq - 7;
+        return result;
+    }
+
+    static uint64_t GetHorizontalSubset(int square, int index)
+    {
+        uint64_t blockers = GetBlockers(square, index);
+        uint64_t result = 0;
+        for (int sq = square; IsFree(blockers, sq) && File(sq) < FILE_H; sq++)
+            result |= 1ull << sq + 1;
+        for (int sq = square; IsFree(blockers, sq) && File(sq) > FILE_A; sq--)
+            result |= 1ull << sq - 1;
+        return result;
+    }
+
+    static uint64_t GetVerticalSubset(int square, int index)
+    {
+        uint64_t blockers = GetVerticalBlockers(square, index);
+        uint64_t result = 0;
+        for (int sq = square; IsVerticalFree(blockers, sq) && Rank(sq) < RANK_8; sq += 8)
+            result |= 1ull << sq + 8;
+        for (int sq = square; IsVerticalFree(blockers, sq) && Rank(sq) > RANK_1; sq -= 8)
+            result |= 1ull << sq - 8;
+        return result;
+    }
+
+
+    //Table initialization
+
+    static void Init()
+    {
+        //Init Masks
+        for (int square = 0; square < 64; square++)
+        {
+            int x = File(square);
+            int y = Rank(square);
+
+            //DiagonalMask
+            for (int dx = x + 1, dy = y + 1; dx < FILE_H && dy < RANK_8; dx++, dy++)
+                DiagonalMask[square] |= 1ull << dx + dy * 8;
+            for (int dx = x - 1, dy = y - 1; dx > FILE_A && dy > RANK_1; dx--, dy--)
+                DiagonalMask[square] |= 1ull << dx + dy * 8;
+
+            //AntiDiagonalMask
+            for (int dx = x - 1, dy = y + 1; dx > FILE_A && dy < RANK_8; dx--, dy++)
+                AntiDiagonalMask[square] |= 1ull << dx + dy * 8;
+            for (int dx = x + 1, dy = y - 1; dx < FILE_H && dy > RANK_1; dx++, dy--)
+                AntiDiagonalMask[square] |= 1ull << dx + dy * 8;
+
+            //HorizontalMask
+            for (int dx = FILE_A + 1; dx < FILE_H; dx++)
+                if (dx != x)
+                    HorizontalMask[square] |= 1ull << dx + y * 8;
+
+            //VerticalMask
+            for (int dy = RANK_1 + 1; dy < RANK_8; dy++)
+                if (dy != y)
+                    VerticalMask[square] |= 1ull << x + dy * 8;
+        }
+        //Init Subsets
+        for (int square = 0; square < 64; square++)
+            for (int index = 0; index < 64; index++)
+            {
+                dSubset[square * 64 + index] = GetDiagonalSubset(square, index);
+                aSubset[square * 64 + index] = GetAntiDiagonalSubset(square, index);
+                hSubset[square * 64 + index] = GetHorizontalSubset(square, index);
+                vSubset[square * 64 + index] = GetVerticalSubset(square, index);
+            }
+    }
+}
+*/
