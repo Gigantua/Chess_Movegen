@@ -89,6 +89,8 @@ static void PrintBrand() {
 #define QBB_	 (1)
 #define GeneticQBB_	 (1)
 #define HVar_	 (1)
+#define CMagic_	 (1)
+#define SMagic_  (1)
 #define Sissy_	 (1)
 #define KGSSB_	 (1)
 #define Dumb7_	 (1)
@@ -217,6 +219,23 @@ static void ConstPrint(const char* name, uint64_t source[N])
 	ss << std::dec;
 	std::cout << ss.str();
 }
+
+
+static std::string _map(uint64_t value)
+{
+	static std::string str(64 + 8, 'o');
+	for (uint64_t i = 0, c = 0; i < 64; i++)
+	{
+		uint64_t bitmask = (1ull) << i;
+
+		if ((bitmask & value) != 0) str[c++] = 'X';
+		else str[c++] = '.';
+
+		if ((i + 1) % 8 == 0) str[c++] = '\n';
+	}
+	return str;
+}
+
 
 //Reference
 #include "Switch.hpp"
@@ -556,6 +575,37 @@ struct HVar_t {
 Dummy(HVar_t);
 #endif
 
+#if CMagic_
+#include "Correlationmagic.hpp"
+struct CMagic_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Correlation Magic";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=82224#p949688";
+	static inline constexpr std::string_view sp_op = "imul64";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Correlationmagic::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::Correlationmagic::Size; }
+};
+#else 
+Dummy(CMagic_t);
+#endif
+
+#if SMagic_
+#include "Correlationmagic.hpp"
+struct SMagic_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Spectral Magic";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=82224#p949688";
+	static inline constexpr std::string_view sp_op = "none";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Correlationmagic::SpectralQueen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::Correlationmagic::Size; }
+};
+#else 
+Dummy(SMagic_t);
+#endif
 
 #if Fancy_
 #include "Hash_Fancy.hpp"
@@ -865,25 +915,11 @@ Dummy(Bitrotate_t);
 #endif
 
 
-
-static std::string _map(uint64_t value)
-{
-	static std::string str(64 + 8, 'o');
-	for (uint64_t i = 0, c = 0; i < 64; i++)
-	{
-		uint64_t bitmask = (1ull) << i;
-
-		if ((bitmask & value) != 0) str[c++] = 'X';
-		else str[c++] = '.';
-
-		if ((i + 1) % 8 == 0) str[c++] = '\n';
-	}
-	return str;
-}
-
 // Todo - publish pext outperformer X(Gigantua_t);
 
 #define TestAlgo(X)	 \
+X(CMagic_t)			 \
+X(SMagic_t)			 \
 X(SBAMG_t)			 \
 X(SBAMGNT_t)		 \
 X(GaloisField_t)	 \
@@ -947,6 +983,9 @@ bool VerifyInit() {
 #endif
 #if KGSSB_
 	Chess_Lookup::KGSSB::Init();
+#endif
+#if CMagic_
+	Chess_Lookup::Correlationmagic::Init();
 #endif
 
 	std::cout << "Verify Engines...";
