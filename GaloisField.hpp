@@ -133,11 +133,11 @@ namespace Chess_Lookup::GaloisField
 		u64x8 b = _mm512_gf2p8affine_epi64_epi8_impl(input, _mm512_set1_epi64(0x8040201008040201), 0x00);
 
 		if constexpr (Limit == 4) {
-#ifdef __AVX2__
+#if defined(__AVX2__)
 			__m256i mask = _mm256_set_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
 			_mm256_storeu_si256((__m256i*)b.qword, _mm256_shuffle_epi8(_mm256_loadu_si256((__m256i*)b.qword), mask));
 			return b;
-#elif
+#else
 			return { byteswap(b.qword[0].value), byteswap(b.qword[1].value), byteswap(b.qword[2].value), byteswap(b.qword[3].value), 0ull, 0ull, 0ull, 0ull };
 #endif 
 		}

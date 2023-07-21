@@ -91,6 +91,7 @@ static void PrintBrand() {
 #define HVar_	 (1)
 #define CMagic_	 (1)
 #define SMagic_  (1)
+#define SMagic2_ (1)
 #define Sissy_	 (1)
 #define KGSSB_	 (1)
 #define Dumb7_	 (1)
@@ -607,6 +608,22 @@ struct SMagic_t {
 Dummy(SMagic_t);
 #endif
 
+#if SMagic2_
+#include "Spectralmagic.hpp"
+struct SMagic2_t {
+	static constexpr bool Supports_Template = false;
+	static inline constexpr std::string_view name = "Spectral Magic Switched";
+	static inline constexpr std::string_view author = "Daniel Inf\x81hr";
+	static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=79005&start=160";
+	static inline constexpr std::string_view sp_op = "none";
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SpectralMagic::Queen(sq, occ); }
+	static uint64_t Size() { return Chess_Lookup::SpectralMagic::Size; }
+};
+#else 
+Dummy(SMagic2_t);
+#endif
+
 #if Fancy_
 #include "Hash_Fancy.hpp"
 struct Fancy_t {
@@ -920,6 +937,7 @@ Dummy(Bitrotate_t);
 #define TestAlgo(X)	 \
 X(CMagic_t)			 \
 X(SMagic_t)			 \
+X(SMagic2_t)		 \
 X(SBAMG_t)			 \
 X(SBAMGNT_t)		 \
 X(GaloisField_t)	 \
@@ -986,6 +1004,9 @@ bool VerifyInit() {
 #endif
 #if CMagic_
 	Chess_Lookup::Correlationmagic::Init();
+#endif
+#if SMagic2_
+	Chess_Lookup::SpectralMagic::Init();
 #endif
 
 	std::cout << "Verify Engines...";
