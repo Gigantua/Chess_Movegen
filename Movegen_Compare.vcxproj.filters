@@ -128,7 +128,7 @@
     <ClInclude Include="Gigantua.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PextSparse.hpp">
+    <ClInclude Include="SplitPext.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Correlationmagic.hpp">

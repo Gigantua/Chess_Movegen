@@ -75,7 +75,7 @@ static void PrintBrand() {
 #define Plain_	 (1)
 #define Fancy_	 (1)
 #define Pext_	 (1)
-#define PextSparse_	 (0)
+#define SplitPext_	 (1)
 #define Kindergarten_ (1)
 #define PextEmu_ (1)
 #define Hyper_	 (1)
@@ -511,20 +511,20 @@ struct Hyper_t {
 	Dummy(Pext_t);
 #endif
 
-#if PextSparse_
-#include "PextSparse.hpp"
-	struct PextSparse_t {
+#if SplitPext_
+#include "SplitPext.hpp"
+	struct SplitPext_t {
 		static constexpr bool Supports_Template = false;
-		static inline constexpr std::string_view name = "Sparse Pext";
-		static inline constexpr std::string_view author = "Thomas Jahn";
+		static inline constexpr std::string_view name = "Split Pext";
+		static inline constexpr std::string_view author = "Group Idea";
 		static inline constexpr std::string_view reference = "https://www.talkchess.com/forum3/viewtopic.php?f=7&t=79049&start=340";
 		static inline constexpr std::string_view sp_op = "pext_u64";
 
-		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::PextSparse::Queen(sq, occ); }
-		static uint64_t Size() { return Chess_Lookup::PextSparse::Size; }
+		static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::SplitPext::Queen(sq, occ); }
+		static uint64_t Size() { return Chess_Lookup::SplitPext::Size; }
 	};
 #else 
-	Dummy(PextSparse_t);
+	Dummy(SplitPext_t);
 #endif
 
 #if PextEmu_
@@ -974,7 +974,7 @@ X(FoldingHash_t)	 \
 X(Plain_t);			 \
 X(Fancy_t);			 \
 X(Pext_t);			 \
-X(PextSparse_t);     \
+X(SplitPext_t);      \
 X(Hyper_t);			 
 
 #define ExportAlgo(X) extern "C" __declspec(dllexport) uint64_t __cdecl X##_Queen(int sq, uint64_t occ) { return X::Queen(sq, occ); }

@@ -189,7 +189,7 @@
     <ClInclude Include="SlideArithm.hpp" />
     <ClInclude Include="SlideArithm_IL.hpp" />
     <ClInclude Include="Gigantua.hpp" />
-    <ClInclude Include="PextSparse.hpp" />
+    <ClInclude Include="SplitPext.hpp" />
     <ClInclude Include="Spectralmagic.hpp" />
     <ClInclude Include="Switch.hpp" />
     <ClInclude Include="Hyperbola.hpp" />
