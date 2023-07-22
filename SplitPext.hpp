@@ -1,7 +1,7 @@
+#pragma once
 #include <cstdint>
 #include <immintrin.h>
 #include <bit>
-#include "Switch.hpp"
 
 //Translation from C# into C++20 07.04.2023 - daniel infuehr
 //Updates from talkchess discussion 22.07.2023: 
@@ -341,44 +341,9 @@ namespace Chess_Lookup::SplitPext {
     // I currently don't count horizontal_mask into Size because it is currently not used
     static constexpr uint64_t Size = (64 * 64 * 4 + 64 * 3) * sizeof(std::uint64_t) + 64 * sizeof(std::uint32_t);
 
-
-    static constexpr std::array<uint8_t, 512> InitRank() {
-
-        std::array<uint8_t, 512> rank_attack{};
-
-        for (int x = 0; x < 64; ++x) {
-            for (int f = 0; f < 8; ++f) {
-                int o = 2 * x;
-                int x2{}, y2{};
-                int b{};
-
-                y2 = 0;
-                for (x2 = f - 1; x2 >= 0; --x2) {
-                    b = 1 << x2;
-                    y2 |= b;
-                    if ((o & b) == b) break;
-                }
-                for (x2 = f + 1; x2 < 8; ++x2) {
-                    b = 1 << x2;
-                    y2 |= b;
-                    if ((o & b) == b) break;
-                }
-                rank_attack[x * 8ull + f] = y2;
-            }
-        }
-        return rank_attack;
-    }
-    static constexpr std::array<uint8_t, 512> rank_attack = InitRank();
-
     static std::uint64_t rook_horizontal(int square, std::uint64_t occupancy) {
         return horizontal_subset[square][(occupancy >> horizontal_shift_table[square]) & 63]; // test confirms horizontal pext is slower
-        //return horizontal_subset[square][_pext_u64(occupancy, horizontal_mask[square])];    
-
-        //uint32_t file_mask = sq & 7;
-        //uint32_t rank_mask = sq & 56;
-        //uint64_t o = (pieces >> rank_mask) & 126;
-        //
-        //return ((uint64_t)rank_attack[o * 4 + file_mask]) << rank_mask;
+        //return horizontal_subset[square][_pext_u64(occupancy, horizontal_mask[square])];
     }
 
     static std::uint64_t rook_vertical(int square, std::uint64_t occupancy) {
