@@ -533,7 +533,7 @@ struct Hyper_t {
 struct PextEmu_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Pext Emulated";
-	static inline constexpr std::string_view author = "Zach Wegner"; //Daniel Inf�hr
+	static inline constexpr std::string_view author = "Zach Wegner"; //Daniel Inführ
 	static inline constexpr std::string_view reference = "https://randombit.net/bitbashing/posts/haswell_bit_permutations.html";
 	static inline constexpr std::string_view sp_op = "none";
 
@@ -646,7 +646,7 @@ Dummy(Fancy_t);
 struct Explode_t {
 	static constexpr bool Supports_Template = false;
 	static inline constexpr std::string_view name = "Exploding Bitboards";
-	static inline constexpr std::string_view author = "Harald L\x81\xE1 \ben\t"; //Harald L��en
+	static inline constexpr std::string_view author = "Harald L\x81\xE1 \ben\t"; //Harald Lüßen
 	static inline constexpr std::string_view reference = "http://www.open-aurec.com/wbforum/viewtopic.php?f=4&t=4523&start=80";
 	static inline constexpr std::string_view sp_op = "imul64";
 
