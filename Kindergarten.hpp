@@ -40,21 +40,21 @@ namespace Chess_Lookup::Kindergarten
     }
 
     template<typename F>
-    auto for_64(F f)
+    auto collect_64(F f)
     {
         std::array<decltype(f(0)), 64> result;
-        for (int square = 0; square < 64; square++)
+        for (int i = 0; i < 64; i++)
         {
-            result[square] = f(square);
+            result[i] = f(i);
         }
         return result;
     }
 
-    const std::array<uint64_t, 64> diagonals_64 = for_64([](int i){
+    const std::array<uint64_t, 64> diagonals_64 = collect_64([](int i){
         return occ_for_square(0, i, {9, -9}, [](auto s, auto occ){ return 0; });
     });
 
-    const std::array<uint64_t, 64> anti_diagonals_64 = for_64([](int i){
+    const std::array<uint64_t, 64> anti_diagonals_64 = collect_64([](int i){
         return occ_for_square(0, i, {7, -7}, [](auto s, auto occ){ return 0; });
     });
 
@@ -77,8 +77,8 @@ namespace Chess_Lookup::Kindergarten
 
     std::array<std::array<uint64_t, 64>, 64> attack_table(const std::array<int, 2> dirs, std::function<uint8_t(int, uint64_t)> hash_key_fn)
     {
-        return for_64([&](int square){
-            return for_64([&](int hash_key){
+        return collect_64([&](int square){
+            return collect_64([&](int hash_key){
                 return occ_for_square(hash_key, square, dirs, hash_key_fn);
             });
         });
