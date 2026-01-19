@@ -107,6 +107,9 @@ static void PrintBrand() {
 #define GeneticObstructionV2_ (1)
 #define FoldingHash_ (1)
 #define GaloisField_ (1)
+#define Titboard_ (1)
+
+#define PEXTTitboard_ (1)
 #define Gigantua_ (0)
 
 #define MaskOf(X) _blsi_u64(X)
@@ -812,6 +815,44 @@ struct Kindergarten_t {
 Dummy(Kindergarten_t);
 #endif
 
+#if Titboard_
+#include "Titboard.hpp"
+struct Titboard_t
+{
+	static constexpr bool Supports_Template = true;
+	static inline constexpr std::string_view name = "Titboard";
+	static inline constexpr std::string_view author = "Malik Tremain";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Titboards";
+	static inline constexpr std::string_view sp_op = "";
+	
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Titboard::Queen<false>(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::Titboard::Queen<sq, false>(occ); }
+	static uint64_t Size() { return Chess_Lookup::Titboard::Size; }
+};
+#else
+Dummy(Titboard_t);
+#endif
+
+#if PEXTTitboard_
+#include "Titboard.hpp"
+struct PEXTTitboard_t
+{
+	static constexpr bool Supports_Template = true;
+	static inline constexpr std::string_view name = "PEXT Titboard";
+	static inline constexpr std::string_view author = "Malik Tremain";
+	static inline constexpr std::string_view reference = "https://www.chessprogramming.org/Titboards";
+	static inline constexpr std::string_view sp_op = "";
+
+
+	static uint64_t Queen(int sq, uint64_t occ) { return Chess_Lookup::Titboard::Queen<true>(sq, occ); }
+	template <int sq> static uint64_t Queen(uint64_t occ) { return Chess_Lookup::Titboard::Queen<sq, true>(occ); }
+	static uint64_t Size() { return Chess_Lookup::Titboard::Size; }
+};
+#else
+Dummy(PEXTTitboard_t);
+#endif
+
 
 #if Obstrd_
 #include "ObstructionDiff.hpp"
@@ -935,6 +976,8 @@ Dummy(Bitrotate_t);
 // Todo - publish pext outperformer X(Gigantua_t);
 
 #define TestAlgo(X)	 \
+X(Titboard_t)		 \
+X(PEXTTitboard_t)	 \
 X(CMagic_t)			 \
 X(SMagic_t)			 \
 X(SMagic2_t)		 \
