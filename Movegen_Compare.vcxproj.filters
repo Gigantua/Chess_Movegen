@@ -137,5 +137,8 @@
     <ClInclude Include="Spectralmagic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Titboard.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
