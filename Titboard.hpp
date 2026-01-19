@@ -3,7 +3,10 @@
 #include <bit>
 #include <immintrin.h>
 /*
-    Origional algorithm 
+    Origional algorithm ported from https://github.com/TiltedDFA/TDFA/blob/7a5a3dfe68cd8790dc4ae433a5f197e243849fa0/src/MoveGen.cpp.
+    some alterations were made since this project does not need fully precomputed and encoded moves, though if you wish to use this
+    algorithm yourself, it is recommened to uses the origional version.
+    Origional algorith and this projects adaptation done by Malik Tremain.
 */
 
 namespace Chess_Lookup::Titboard
